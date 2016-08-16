@@ -27,7 +27,8 @@ conky.config = {
 	own_window_type = 'override',
 	own_window_transparent = true,
 --own_window_hints undecorate
-	own_window_hints = 'undecorate,sticky,skip_taskbar,skip_pager,below',
+-- XFCE4 - undecorate not working
+	own_window_hints = 'sticky,skip_taskbar,skip_pager,below',
 
 	border_inner_margin = 0,
 	border_outer_margin = 0,
