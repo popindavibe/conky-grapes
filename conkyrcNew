@@ -23,8 +23,8 @@ conky.config = {
 -- Window specifications #
 	own_window_class = 'Conky',
 	own_window = true,
--- XFCE4 = override, sinon 'normal'
-	own_window_type = 'override',
+-- XFCE4 = desktop, sinon 'normal'
+	own_window_type = 'desktop',
 	own_window_transparent = true,
 --own_window_hints undecorate
 -- XFCE4 - undecorate not working
@@ -117,5 +117,5 @@ ${font Michroma:size=9}${alignr 298}${voffset -42}${color0}${time %a} ${color0}$
 ${font Michroma:size=18}${goto 108}${color1}${voffset -4}${time %H}:${time %M}
 ${font Michroma:size=8}${color0}${goto 296}${voffset 20}BATTERIE
 ${font Play:size=8}${color0}${goto 278}${voffset 8}${color1}${battery_percent BAT0}%${endif}${endif}
-${font Michroma:bold:size=11}${color0}${voffset 50}${alignr 100}${execi 3600 source /etc/os-release && echo "$PRETTY_NAME"}
+${font Michroma:bold:size=11}${color0}${voffset 50}${alignc}${execi 3600 source /etc/os-release && echo "$PRETTY_NAME"}
 ]];
