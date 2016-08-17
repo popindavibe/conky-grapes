@@ -207,15 +207,15 @@ settings_table = {
     },
     {
         name='time',
-        arg='%S',
-        max=60,
+        arg='%H',
+        max=24,
         bg_colour=0x3b3b3b,
-        bg_alpha=0.8,
+        bg_alpha=0.4,
         fg_colour=0x34cdff,
         fg_alpha=0.8,
         x=230, y=410,
-        radius=30,
-        thickness=12,
+        radius=10,
+        thickness=4,
         start_angle=0,
         end_angle=240
     },
@@ -235,15 +235,15 @@ settings_table = {
     },
     {
         name='time',
-        arg='%H',
-        max=24,
+        arg='%S',
+        max=60,
         bg_colour=0x3b3b3b,
-        bg_alpha=0.4,
+        bg_alpha=0.8,
         fg_colour=0x34cdff,
         fg_alpha=0.8,
         x=230, y=410,
-        radius=10,
-        thickness=4,
+        radius=30,
+        thickness=12,
         start_angle=0,
         end_angle=240
     },
@@ -359,7 +359,7 @@ function disk_watch()
         settings_table[8]['fg_colour']=crit
     end
 
-    disk=tonumber(conky_parse("${fs_used_perc /home}"))
+    disk=tonumber(conky_parse("${fs_used_perc /boot}"))
 
     if disk<warn_disk then
         settings_table[9]['fg_colour']=normal
@@ -369,15 +369,15 @@ function disk_watch()
         settings_table[9]['fg_colour']=crit
     end
 
-    disk=tonumber(conky_parse("${fs_used_perc /usr}"))
+    --disk=tonumber(conky_parse("${fs_used_perc /usr}"))
 
-    if disk<warn_disk then
-        settings_table[10]['fg_colour']=normal
-    elseif disk<crit_disk then
-        settings_table[10]['fg_colour']=warn
-    else
-        settings_table[10]['fg_colour']=crit
-    end
+    --if disk<warn_disk then
+    --    settings_table[10]['fg_colour']=normal
+    --elseif disk<crit_disk then
+    --    settings_table[10]['fg_colour']=warn
+    --else
+    --    settings_table[10]['fg_colour']=crit
+    --end
 end
 
 -- Contrôle de la température
@@ -406,11 +406,11 @@ function battery_watch()
     battery=tonumber(conky_parse("${battery_percent BAT0}"))
 
     if battery>warn_value then
-        settings_table[16]['fg_colour']=normal
-    elseif battry>crit_value then
-        settings_table[16]['fg_colour']=warn
+        settings_table[15]['fg_colour']=normal
+    elseif battery>crit_value then
+        settings_table[15]['fg_colour']=warn
     else
-        settings_table[16]['fg_colour']=crit
+        settings_table[15]['fg_colour']=crit
     end
 end
 

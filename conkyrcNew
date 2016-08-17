@@ -70,7 +70,7 @@ conky.config = {
 
 
 -- Lua Load  ##${voffset 750}
-	lua_load = './rings-v1.2.2.lua',
+	lua_load = './rings-v2.lua',
 --lua_draw_hook_pre ring_stats
 	lua_draw_hook_pre = 'conky_main',
 
@@ -94,9 +94,10 @@ ${goto 324}${font Play:normal:size=8}${color1}${top_mem name 2}${alignr 40}${top
 ${goto 324}${font Play:normal:size=8}${color1}${top_mem name 3}${alignr 40}${top_mem mem 3}%
 ${font Play:normal:size=8}${voffset 12}${goto 348}${color1}SWAP${alignr 40}${color1}${swap} / ${color1}${swapmax}
 ${font Play:normal:size=8}${voffset 2}${goto 348}${color1}RAM ${alignr 40}${color1}${mem} / ${color1}${memmax}
-${font Play:normal:size=8}${goto 80}${voffset -68}Root${color1}${alignr 310}${fs_used /} / ${fs_size /}
-${font Play:normal:size=8}${goto 80}${voffset 0}Home${alignr 310}${color1}${fs_used /home} / ${fs_size /home}
-${font Play:normal:size=8}${goto 80}${voffset 0}Srv${alignr 310}${color1}${fs_used /srv} / ${fs_size /srv}
+${font Play:normal:size=8}${goto 70}${voffset -68}ARCH${color1}${alignr 310}${fs_used /} / ${fs_size /}
+${font Play:normal:size=8}${goto 70}${voffset 0}boot${alignr 310}${color1}${fs_used /boot} / ${fs_size /boot}
+## 3rd FS (if needed)
+#${font Play:normal:size=8}${goto 80}${voffset 0}Home${alignr 310}${color1}${fs_used /home} / ${fs_size /home}
 ${font Michroma:size=10}${color0}${goto 66}${voffset 10}DISQUE  DUR
 ${font Michroma:size=10}${color0}${voffset 34}${goto 324}INFO  INTERNET
 # EDITION FINIR WLAN
@@ -114,6 +115,7 @@ ${else}${if_existing /proc/net/route enp1s0f2}${font Play:normal:size=8}${color1
 ${font Play:normal:size=8}${goto 298}${color1}Down${goto 370}${color1}${totaldown enp1s0f2} / ${color1}${downspeed enp1s0f2}
 ${font Play:bold:size=8}${goto 300}${voffset 2}Local IP${goto 370}${addr enp1s0f2}
 ${font Play:bold:size=8}${goto 300}${voffset 1}Public IP${goto 370}${execi 3600 wget -q -O - checkip.dyndns.org | sed -e 's/[^[:digit:]\|.]//g'}
+## TIME ########################
 ${font Michroma:size=9}${alignr 298}${voffset -42}${color0}${time %a} ${color0}${time %x}
 ${font Michroma:size=18}${goto 108}${color1}${voffset -4}${time %H}:${time %M}
 ## BATTERY #####################
