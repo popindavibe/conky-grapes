@@ -51,7 +51,7 @@ settings_table = {
     },
     {
         name='cpu',
-        arg='cpu0',
+        arg='cpu1',
         max=100,
         bg_colour=0x3b3b3b,
         bg_alpha=0.7,
@@ -65,7 +65,7 @@ settings_table = {
     },
     {
         name='cpu',
-        arg='cpu1',
+        arg='cpu2',
         max=100,
         bg_colour=0x3b3b3b,
         bg_alpha=0.6,
@@ -79,7 +79,7 @@ settings_table = {
     },
     {
         name='cpu',
-        arg='cpu2',
+        arg='cpu3',
         max=100,
         bg_colour=0x3b3b3b,
         bg_alpha=0.5,
@@ -93,7 +93,7 @@ settings_table = {
     },
     {
         name='cpu',
-        arg='cpu3',
+        arg='cpu4',
         max=100,
         bg_colour=0x3b3b3b,
         bg_alpha=0.4,
@@ -384,7 +384,7 @@ function temp_watch()
     warn_value=70
     crit_value=80
 
-    temperature=tonumber(conky_parse("${acpitemp}"))
+    temperature=tonumber(conky_parse("${hwmon temp 1}"))
 
     if temperature<warn_value then
         settings_table[1]['fg_colour']=normal
@@ -395,10 +395,27 @@ function temp_watch()
     end
 end
 
+-- Battery color control
+function battery_watch()
+
+    warn_value=30
+    crit_value=10
+
+    battery=tonumber(conky_parse("${battery_percent BAT0}"))
+
+    if battery>warn_value then
+        settings_table[16]['fg_colour']=normal
+    elseif battry>crit_value then
+        settings_table[16]['fg_colour']=warn
+    else
+        settings_table[16]['fg_colour']=crit
+    end
+end
+
 -- Contrôle de l'interface active
 function iface_watch()
 
-    iface=conky_parse("${if_existing /proc/net/route eth0}eth0${else}wlan0${endif}")
+    iface=conky_parse("${if_existing /proc/net/route enp1s0f2}enp1s0f2${else}wlan0${endif}")
 
     settings_table[11]['arg']=iface
     settings_table[12]['arg']=iface
@@ -431,6 +448,7 @@ function conky_main()
     temp_watch()
     disk_watch()
     iface_watch()
+    battery_watch()
     conky_ring_stats()
 -- quand fond nécessaire
 --    conky_draw_bg()

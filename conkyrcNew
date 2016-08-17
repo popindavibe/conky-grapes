@@ -78,7 +78,8 @@ conky.config = {
 };
 
 conky.text = [[
-${font Play:normal:size=8}${voffset 16}${color1}${goto 106}${freq_g cpu0} Ghz${alignr 330}${acpitemp} °C
+${font Play:normal:size=8}${voffset 16}${color1}${goto 106}${freq_g cpu0} Ghz${alignr 330}${hwmon temp 1} °C
+#${font Play:normal:size=8}${voffset 16}${color1}${goto 106}${freq_g cpu0} Ghz${alignr 330}${acpitemp} °C
 ${font Play:normal:size=8}${voffset 0}${goto 120}${color1}CPU 1 ${alignr 330}${color1}${cpu cpu1}%
 ${font Play:normal:size=8}${voffset 2}${goto 120}${color1}CPU 2${alignr 330}${color1}${cpu cpu2}%
 ${font Play:normal:size=8}${voffset 2}${goto 120}${color1}CPU 3${alignr 330}${color1}${cpu cpu3}%
@@ -115,6 +116,7 @@ ${font Play:bold:size=8}${goto 300}${voffset 2}Local IP${goto 370}${addr enp1s0f
 ${font Play:bold:size=8}${goto 300}${voffset 1}Public IP${goto 370}${execi 3600 wget -q -O - checkip.dyndns.org | sed -e 's/[^[:digit:]\|.]//g'}
 ${font Michroma:size=9}${alignr 298}${voffset -42}${color0}${time %a} ${color0}${time %x}
 ${font Michroma:size=18}${goto 108}${color1}${voffset -4}${time %H}:${time %M}
+## BATTERY #####################
 ${font Michroma:size=8}${color0}${goto 296}${voffset 20}BATTERIE
 ${font Play:size=8}${color0}${goto 278}${voffset 8}${color1}${battery_percent BAT0}%${endif}${endif}
 ${font Michroma:bold:size=11}${color0}${voffset 50}${alignc}${execi 3600 source /etc/os-release && echo "$PRETTY_NAME"}
