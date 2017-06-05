@@ -61,8 +61,8 @@ conky.config = {
 	default_color = '#333333',
 
 -- GREEN
---color0 b2ff34
---color1 efefef
+--	color0 b2ff34
+--	color1 efefef
 
 -- BLUE
 	color0 = '#34cdff',
@@ -78,52 +78,53 @@ conky.config = {
 };
 
 conky.text = [[
-${font Play:normal:size=8}${voffset 16}${color1}${goto 106}${freq_g cpu0} Ghz${alignr 330}${hwmon temp 1} °C
-#${font Play:normal:size=8}${voffset 16}${color1}${goto 106}${freq_g cpu0} Ghz${alignr 330}${acpitemp} °C
+${voffset 12}${color1}${goto 106}${freq_g cpu0} Ghz${alignr 330}${hwmon temp 1} °C
+#${voffset 16}${color1}${goto 106}${freq_g cpu0} Ghz${alignr 330}${acpitemp} °C
 ## CPU ###################
-${font Play:normal:size=8}${voffset 0}${goto 120}${color1}CPU 1 ${alignr 330}${color1}${cpu cpu1}%
-${font Play:normal:size=8}${voffset 2}${goto 120}${color1}CPU 2${alignr 330}${color1}${cpu cpu2}%
-${font Play:normal:size=8}${voffset 2}${goto 120}${color1}CPU 3${alignr 330}${color1}${cpu cpu3}%
-${font Play:normal:size=8}${voffset 2}${goto 120}${color1}CPU 4${alignr 330}${color1}${cpu cpu4}%
-${goto 50}${voffset 16}${font Play:normal:size=8}${color1}${top name 1}${alignr 306}${top cpu 1}%
-${goto 50}${font Play:normal:size=8}${color1}${top name 2}${alignr 306}${top cpu 2}%
-${goto 50}${font Play:normal:size=8}${color1}${top name 3}${alignr 306}${top cpu 3}%
+${voffset 0}${goto 120}${color1}CPU 1 ${alignr 330}${color1}${cpu cpu1}%
+${voffset 2}${goto 120}${color1}CPU 2${alignr 330}${color1}${cpu cpu2}%
+${voffset 2}${goto 120}${color1}CPU 3${alignr 330}${color1}${cpu cpu3}%
+${voffset 1}${goto 120}${color1}CPU 4${alignr 330}${color1}${cpu cpu4}%
+${goto 50}${voffset 16}${color1}${top name 1}${alignr 306}${top cpu 1}%
+${goto 50}${color1}${top name 2}${alignr 306}${top cpu 2}%
+${goto 50}${color1}${top name 3}${alignr 306}${top cpu 3}%
 ${font Michroma:size=10}${color0}${goto 80}${voffset 4}CPU
 ## MEMORY ################
-${font Michroma:size=10}${color0}${goto 394}${voffset 48}MÉMOIRE
-${goto 324}${voffset -2}${font Play:normal:size=8}${color1}${top_mem name 1}${alignr 40}${top_mem mem 1}%
-${goto 324}${font Play:normal:size=8}${color1}${top_mem name 2}${alignr 40}${top_mem mem 2}%
-${goto 324}${font Play:normal:size=8}${color1}${top_mem name 3}${alignr 40}${top_mem mem 3}%
-${font Play:normal:size=8}${voffset 12}${goto 348}${color1}SWAP${alignr 40}${color1}${swap} / ${color1}${swapmax}
-${font Play:normal:size=8}${voffset 2}${goto 348}${color1}RAM ${alignr 40}${color1}${mem} / ${color1}${memmax}
+${font Michroma:size=10}${color0}${goto 394}${voffset 42}MÉMOIRE
+${font}${goto 324}${voffset -2}${color1}${top_mem name 1}${alignr 40}${top_mem mem 1}%
+${goto 324}${color1}${top_mem name 2}${alignr 40}${top_mem mem 2}%
+${goto 324}${color1}${top_mem name 3}${alignr 40}${top_mem mem 3}%
+${voffset 12}${goto 348}${color1}SWAP${alignr 40}${color1}${swap} / ${color1}${swapmax}
+${voffset 2}${goto 348}${color1}RAM ${alignr 40}${color1}${mem} / ${color1}${memmax}
 ## DISKS #################
-${font Play:normal:size=8}${goto 70}${voffset -68}ARCH${color1}${alignr 310}${fs_used /} / ${fs_size /}
-${font Play:normal:size=8}${goto 70}${voffset 0}boot${alignr 310}${color1}${fs_used /boot} / ${fs_size /boot}
+${goto 70}${voffset -68}ARCH${color1}${alignr 310}${fs_used /} / ${fs_size /}
+${goto 70}${voffset 0}boot${alignr 310}${color1}${fs_used /boot} / ${fs_size /boot}
 ## 3rd FS (if needed)
-#${font Play:normal:size=8}${goto 80}${voffset 0}Home${alignr 310}${color1}${fs_used /home} / ${fs_size /home}
+#${goto 80}${voffset 0}Home${alignr 310}${color1}${fs_used /home} / ${fs_size /home}
 ${font Michroma:size=10}${color0}${goto 66}${voffset 22}DISQUE  DUR
 ## INTERNET ################
 ${font Michroma:size=10}${color0}${voffset 34}${goto 324}INFO  INTERNET
 ## EDITION FINIR WLAN
-${if_existing /proc/net/route wlan0}${font Play:normal:size=8}${color1}${alignr 54}${voffset -6}WiFi  ${color1}${wireless_essid wlan0}
-${font Play:normal:size=8}${color1}${goto 298}${voffset 0}Up${goto 370}${color1}${totalup wlan0} / ${color1}${upspeed wlan0}
-${font Play:normal:size=8}${goto 298}${color1}Down${goto 370}${color1}${totaldown wlan0} / ${color1}${downspeed wlan0}
-${font Play:bold:size=8}${goto 300}${voffset 2}Local IP${goto 370}${addr wlan0}
-${font Play:bold:size=8}${goto 300}${voffset 1}Public IP${goto 370}${execi 3600 wget -q -O - checkip.dyndns.org | sed -e 's/[^[:digit:]\|.]//g'}
+${if_existing /proc/net/route wlan0}${font}${color1}${alignr 54}${voffset -6}WiFi  ${color1}${wireless_essid wlan0}
+${color1}${goto 298}${voffset 0}Up${goto 370}${color1}${totalup wlan0} / ${color1}${upspeed wlan0}
+${goto 298}${color1}Down${goto 370}${color1}${totaldown wlan0} / ${color1}${downspeed wlan0}
+${goto 300}${voffset 2}Local IP${goto 370}${addr wlan0}
+${goto 300}${voffset 1}Public IP${goto 370}${execi 3600 wget -q -O - checkip.dyndns.org | sed -e 's/[^[:digit:]\|.]//g'}
 ${font Michroma:size=9}${goto 90}${voffset -42}${color0}${time %a} ${color0}${time %x}
 ${font Michroma:size=18}${goto 108}${color1}${voffset -4}${time %H}:${time %M}
 ${font Michroma:size=8}${color0}${goto 296}${voffset 20}BATTERIE
-${font Play:size=8}${color0}${goto 278}${voffset 8}${color1}${battery_percent BAT0}%
+${color0}${goto 278}${voffset 8}${color1}${battery_percent BAT0}%
 ## |--ETH0 
-${else}${if_existing /proc/net/route enp1s0f2}${font Play:normal:size=8}${color1}${goto 298}${voffset 6}Up${goto 370}${color1}${totalup enp1s0f2} / ${color1}${upspeed enp1s0f2}
-${font Play:normal:size=8}${goto 298}${color1}Down${goto 370}${color1}${totaldown enp1s0f2} / ${color1}${downspeed enp1s0f2}
-${font Play:bold:size=8}${goto 300}${voffset 2}Local IP${goto 370}${addr enp1s0f2}
-${font Play:bold:size=8}${goto 300}${voffset 1}Public IP${goto 370}${execi 3600 wget -q -O - checkip.dyndns.org | sed -e 's/[^[:digit:]\|.]//g'}${endif}${endif}
+${else}${if_existing /proc/net/route enp1s0f2}${color1}${goto 298}${voffset 6}Up${goto 370}${color1}${totalup enp1s0f2} / ${color1}${upspeed enp1s0f2}
+${goto 298}${color1}Down${goto 370}${color1}${totaldown enp1s0f2} / ${color1}${downspeed enp1s0f2}
+${goto 300}${voffset 2}Local IP${goto 370}${addr enp1s0f2}
+${goto 300}${voffset 1}Public IP${goto 370}${execi 3600 wget -q -O - checkip.dyndns.org | sed -e 's/[^[:digit:]\|.]//g'}${endif}${endif}
 ## TIME ########################
 ${font Michroma:size=9}${alignr 298}${voffset -42}${color0}${time %a} ${color0}${time %x}
 ${font Michroma:size=18}${goto 108}${color1}${voffset -4}${time %H}:${time %M}
 ## BATTERY #####################
 ${font Michroma:size=8}${color0}${goto 296}${voffset 22}BATTERIE
-${font Play:size=8}${color0}${goto 278}${voffset 8}${color1}${battery_percent BAT0}%
+${font}${color0}${goto 278}${voffset 8}${color1}${battery_percent BAT0}%
+## OS
 ${font Michroma:bold:size=11}${color0}${voffset 50}${alignc}${execi 3600 source /etc/os-release && echo "$PRETTY_NAME"}
 ]];
