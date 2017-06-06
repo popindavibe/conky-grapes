@@ -121,6 +121,8 @@ ${else}${if_existing /proc/net/route enp1s0f2}${color1}${goto 298}${voffset 6}Up
 ${goto 298}${color1}Down${goto 370}${color1}${totaldown enp1s0f2} / ${color1}${downspeed enp1s0f2}
 ${goto 300}${voffset 2}Local IP${goto 370}${addr enp1s0f2}
 ${goto 300}${voffset 1}Public IP${goto 370}${execi 3600 wget -q -O - checkip.dyndns.org | sed -e 's/[^[:digit:]\|.]//g'}${endif}${endif}
+## TEST ########################
+${image ~/conky/conky-grappes/tachi_conky1.png -s 80x60 -p 400,380 -f 86400}
 ### HERE VOFFSET IS SUBECT TO CHANGES ###
 ## TIME ########################
 ${font Michroma:size=10}${alignr 298}${voffset -42}${color0}${time %a} ${color0}${time %x}
