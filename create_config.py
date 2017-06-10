@@ -98,6 +98,45 @@ def meminfo():
             meminfo[line.split(':')[0]] = line.split(':')[1].strip()
     return meminfo
 
+def write_batconf_lua():
+    """ Prepare lua config for BATTERY if detected
+    """
+
+    BAT = None
+    for i in range(2):
+        try:
+            open('/sys/class/power_supply/BAT{}/uevent'.format(i))
+            BAT = i
+
+        except IOError:
+            print("Could not check battery via /sys/class/power_suplly")
+
+        try:
+            open('/proc/acpi/battery/BAT{}/state'.format(i))
+            BAT = i
+
+        except IOError:
+            print("Could not check battery via acpi")
+    
+    if BAT is not None:
+        batconf_lua = []
+        alpha = 0.6
+        radius = 18
+        thickness = 10
+        data = { 'arg': 'BAT{}'.format(BAT), 'bg_alpha': alpha, 'radius': radius, 'thickness': thickness} 
+
+        new_block = "{{\n name='battery_percent',\n args='{arg}',\n max=100,\n bg_colour=0x3b3b3b,\n bg_alpha={bg_alpha},\n fg_colour=0x34cdff,\n fg_alpha=0.8,\n x=274, y=464,\n radius={radius},\n thickness={thickness},\n start_angle=180,\n end_angle=420\n}},\n".format(**data)
+        batconf_lua.append(new_block)
+
+        print('Writing BATTERY LUA config in template file')
+
+        with open('./conky/rings-v2_tpl', 'r') as f:
+            filedata = f.read()
+        filedata = filedata.replace('--{{ BATTERY }}', ''.join(batconf_lua))
+
+        with open('./conky/rings-v2_tpl', 'w') as f:
+            f.write(filedata)
+
 
 def write_fsconf_lua(disk):
     """ Prepare lua config for FILESYSTEM
@@ -229,6 +268,7 @@ if __name__ == "__main__":
     print('Locally mounted filesystem identified: {0}'.format(disks))
     write_fsconf_lua(disks)
 
+    write_batconf_lua()
 
 
 
