@@ -92,6 +92,58 @@ def meminfo():
             meminfo[line.split(':')[0]] = line.split(':')[1].strip()
     return meminfo
 
+def write_cpuconf_lua(cpunb):
+    """ Prepare lua config for CPU
+    """
+    cpt = 1
+    cpuconf_lua = []
+    max_cpu_display = 8
+    print('We have {} CPUs'.format(cpunb))
+    if cpunb >= max_cpu_display:
+        cpunb = max_cpu_display
+
+    alpha = 0.7
+    radius = 86
+    # we will spread alpha over 0.4 gradient
+    alpha_scale = 0.4 / cpunb 
+    thickness_max = 13
+    
+    if cpunb > 4:
+        thickness_max = 13 - (cpunb - 4)
+
+    thickness = thickness_max 
+
+    for cpt in range (cpunb): 
+        
+        data = { 'arg': "cpu{}".format(cpt+1), 'bg_alpha': alpha, 'radius': radius, 'thickness': thickness} 
+
+#        print("data of bg_alpha is {bg_alpha} ".format(**data))
+        new_block = "{{\n name='cpu',\n args='{arg}',\n max=100,\n bg_colour=0x3b3b3b,\n bg_alpha={bg_alpha},\n fg_colour=0x34cdff,\n fg_alpha=0.8,\n x=200, y=120,\n radius={radius},\n thickness={thickness},\n start_angle=0,\n end_angle=240\n}},\n".format(**data)
+
+        cpuconf_lua.append(new_block)
+
+        alpha -= alpha_scale
+        radius -= (thickness + 2)
+        thickness -= 1
+
+    #print("cpuconf_lua is {} ".format(cpuconf_lua))
+    print('Writing CPU LUA config in template file')
+    #regex = re.compile(r"^\{\{ CPU \}\}$", re.MULTILINE)
+
+    with open('./conky/rings-v2_tpl', 'r') as f:
+        filedata = f.read()
+        
+    filedata = filedata.replace('{{ CPU }}', ''.join(cpuconf_lua))
+    print("filedata = {}".format(filedata))
+    
+    with open('./conky/rings-v2_tpl', 'w') as f:
+        f.write(filedata)
+
+    #for line in f:
+    #    if regex.search(line) is not None:
+    #        line = regex.sub(format(print(''.join(cpuconf_lua))), line)
+
+
 def display_netconf(interface):
     """ Prepare conky config for network interface
     """
@@ -119,6 +171,7 @@ if __name__ == "__main__":
 
     cpunb = cpu_number()
     print('Number of CPU(s): {0}'.format(cpunb))
+    write_cpuconf_lua(cpunb)
 
     meminfo = meminfo()
     print('Total memory: {0}'.format(meminfo['MemTotal']))
