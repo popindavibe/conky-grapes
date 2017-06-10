@@ -78,8 +78,14 @@ def disk_select():
             if match1 and not match2:
                 #print(diskinfo[1])
                 disks.append(diskinfo[1])
-        disks.sort()
-    return disks
+    disks.sort()
+    if len(disks) > 3:
+        diskKeep = disks[:3]
+        print('Keeping 3 first locally mounted filesystem identified: {0}'.format(diskKeep))
+    else:
+        diskKeep = disks
+
+    return diskKeep
 
 
 def meminfo():
@@ -92,10 +98,48 @@ def meminfo():
             meminfo[line.split(':')[0]] = line.split(':')[1].strip()
     return meminfo
 
+
+def write_fsconf_lua(disk):
+    """ Prepare lua config for FILESYSTEM
+    """
+    fsconf_lua = []
+    alpha = 0.8
+    radius = 40
+    # we will spread alpha over 0.4 gradient
+    alpha_scale = 0.2
+    thickness = 10
+
+    for cpt in range (len(disk)): 
+        
+        data = { 'arg': disk[cpt], 'bg_alpha': alpha, 'radius': radius, 'thickness': thickness} 
+
+#        print("data of bg_alpha is {bg_alpha} ".format(**data))
+        new_block = "{{\n name='fs_used_perc',\n args='{arg}',\n max=100,\n bg_colour=0x3b3b3b,\n bg_alpha={bg_alpha},\n fg_colour=0x34cdff,\n fg_alpha=0.8,\n x=220, y=280,\n radius={radius},\n thickness={thickness},\n start_angle=0,\n end_angle=240\n}},\n".format(**data)
+
+        fsconf_lua.append(new_block)
+
+        alpha -= alpha_scale
+        radius -= (thickness + 2)
+        thickness -= 1
+
+    #print("cpuconf_lua is {} ".format(cpuconf_lua))
+    print('Writing FILESYSTEM LUA config in template file')
+    #regex = re.compile(r"^\{\{ CPU \}\}$", re.MULTILINE)
+
+    with open('./conky/rings-v2_tpl', 'r') as f:
+        filedata = f.read()
+        
+    filedata = filedata.replace('--{{ FILESYSTEM }}', ''.join(fsconf_lua))
+    #print("filedata = {}".format(filedata))
+    
+    with open('./conky/rings-v2_tpl', 'w') as f:
+        f.write(filedata)
+
+
 def write_cpuconf_lua(cpunb):
     """ Prepare lua config for CPU
     """
-    cpt = 1
+    #cpt = 1
     cpuconf_lua = []
     max_cpu_display = 8
     print('We have {} CPUs'.format(cpunb))
@@ -133,8 +177,8 @@ def write_cpuconf_lua(cpunb):
     with open('./conky/rings-v2_tpl', 'r') as f:
         filedata = f.read()
         
-    filedata = filedata.replace('{{ CPU }}', ''.join(cpuconf_lua))
-    print("filedata = {}".format(filedata))
+    filedata = filedata.replace('--{{ CPU }}', ''.join(cpuconf_lua))
+    #print("filedata = {}".format(filedata))
     
     with open('./conky/rings-v2_tpl', 'w') as f:
         f.write(filedata)
@@ -183,8 +227,7 @@ if __name__ == "__main__":
 
     disks = disk_select()
     print('Locally mounted filesystem identified: {0}'.format(disks))
-    threefs = disks[:3]
-    print('Keeping 3 first locally mounted filesystem identified: {0}'.format(threefs))
+    write_fsconf_lua(disks)
 
 
 
