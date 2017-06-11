@@ -335,7 +335,6 @@ def write_netconf_lua(interface):
     thickness = 12
 
     for speed in  ['downspeedf', 'upspeedf']:
-        
         data = { 'name': speed, 'bg_alpha': alpha, 'radius': radius, 'thickness': thickness} 
         new_block = "{{\n name='{name}',\n arg='',\n max=125000,\n bg_colour=0x3b3b3b,\n bg_alpha={bg_alpha},\n fg_colour=0x34cdff,\n fg_alpha=0.8,\n x=290, y=345,\n radius={radius},\n thickness={thickness},\n start_angle=180,\n end_angle=420\n}},\n".format(**data)
 
@@ -350,18 +349,34 @@ def write_netconf_lua(interface):
     write_conf(filedata, dest_lua)
 
 
-def display_netconf(interface):
+def write_netconf_conky(interface):
     """ Prepare conky config for network interface
     """
     netconf = []
-    if interface[1] is True:
+    if interface[0] == "no_gateway_interface":
+        print('No default route on the system! Tachikoma, what is happening?!')
+        
+        with open('./nonetconf') as f:
+            for line in f:
+                netconf.append(line)
+        print('netconf: {0}'.format(netconf))
+
+        print('Writing NETWORK conky config in template file')
+        filedata = read_conf(dest_conky)
+        filedata = filedata.replace('#{{ NETWORK }}', ''.join(netconf))
+        write_conf(filedata, dest_conky)
+
+    elif interface[1] is True:
         print('Setting up Wifi as main interface')
         with open('./wificonf') as f:
             for line in f:
                 netconf.append(re.sub(r'INTERFACE', interface[0], line))
         print('netconf: {0}'.format(netconf))
 
-
+        print('Writing NETWORK conky config in template file')
+        filedata = read_conf(dest_conky)
+        filedata = filedata.replace('#{{ NETWORK }}', ''.join(netconf))
+        write_conf(filedata, dest_conky)
     else:
         print('Setting up NIC as main interface')
         with open('./ethconf') as f:
@@ -369,6 +384,10 @@ def display_netconf(interface):
                 netconf.append(re.sub(r'INTERFACE', interface[0], line))
         print('netconf: {0}'.format(netconf))
 
+        print('Writing NETWORK conky config in template file')
+        filedata = read_conf(dest_conky)
+        filedata = filedata.replace('#{{ NETWORK }}', ''.join(netconf))
+        write_conf(filedata, dest_conky)
 
 
 # main
@@ -384,7 +403,6 @@ if __name__ == "__main__":
 
     interface = route_interface()
     print('Primary interface: {0}'.format(interface))
-    display_netconf(interface)
 
     disks = disk_select()
     print('Locally mounted filesystem kept: {0}'.format(disks))
