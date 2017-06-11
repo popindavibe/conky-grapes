@@ -1,1 +1,11 @@
 conkyrc.oldFormat
+.conkyrc
+conky/rings-v2.lua
+.create_config.py.swp
+conky/rings-v2_gen.lua
+conky/rings-v2_tpl.bak
+conky/rings-v2_tpl.lua
+conky/rings-v2_tpl.lua.bak
+conky_gen.conkyrc
+cpuconf.lua
+

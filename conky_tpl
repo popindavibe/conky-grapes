@@ -65,16 +65,14 @@ conky.config = {
 --	color1 efefef
 
 -- BLUE
-	color0 = '#34cdff',
-	color1 = '#efefef',
+--	color0 = '#34cdff',
+--	color1 = '#efefef',
 
+--{{ COLOR0 }}
+--{{ COLOR1 }}
 
--- Lua Load  ##${voffset 750}
 	lua_load = './conky/rings-v2_gen.lua',
---lua_draw_hook_pre ring_stats
 	lua_draw_hook_pre = 'conky_main',
-
-
 };
 
 conky.text = [[
@@ -102,7 +100,7 @@ ${font Michroma:size=10}${alignr 300}${voffset -40}${color0}${time %a} ${color0}
 ${font Michroma:size=18}${alignr 318}${color1}${voffset -4}${time %H}:${time %M}
 ## BATTERY #####################
 ${font Michroma:size=10}${color0}${goto 296}${voffset 22}BATTERY
-${font}${color0}${goto 278}${voffset 0}${color1}${battery_percent BAT1}%
+#{{ BATTERY }}
 ## OS
-${font Michroma:bold:size=11}${color0}${voffset 50}${alignc}${execi 3600 source /etc/os-release && echo "$PRETTY_NAME"}
+${font Michroma:bold:size=11}${color0}${voffset 50}${alignc}${execi 3600 awk -F '=' '/PRETTY_NAME/ { print $2 }' /etc/os-release | tr -d '"'}
 ]];

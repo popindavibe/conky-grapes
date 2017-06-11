@@ -31,6 +31,14 @@ corner_r=35
 bg_colour=0x3b3b3b
 bg_alpha=0.2
 
+-- blue     | 0x34cdff
+-- red      | 0xff1d2b
+-- green    | 0x1dff22
+-- pink     | 0xff1d9f
+-- orange   | 0xff8523
+-- skyblue  | 0x008cff
+-- darkgray | 0x323232
+
 
 settings_table = {
     {

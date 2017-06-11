@@ -1,0 +1,9 @@
+    disk=tonumber(conky_parse("${fs_used_perc FILESYS}"))
+    if disk<warn_disk then
+        settings_table[INDEX]['fg_colour']=normal
+    elseif disk<crit_disk then
+        settings_table[INDEX]['fg_colour']=warn
+    else
+        settings_table[INDEX]['fg_colour']=crit
+    end
+

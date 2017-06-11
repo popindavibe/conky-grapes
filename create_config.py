@@ -30,6 +30,49 @@ dest_lua = './conky/rings-v2_gen.lua'
 src_conky = './conky_tpl'
 dest_conky = './conky_gen.conkyrc'
 
+# Default
+## blue     | 34cdff
+## whitish  | efefef
+
+## red      | ff1d2b
+## green    | 1dff22
+## pink     | d70751
+## orange   | ff8523
+## skyblue  | 008cff
+## darkgray | 323232
+## brown    | d7bd4c
+
+default_fg_color = '0x34cdff'
+color0 = 'd70751'
+color1 = '323232'
+# for conky
+ccolor0 = '#'+color0
+ccolor1 = '#'+color1
+# for lua
+lcolor0 = '0x'+color0
+
+def write_color_lua():
+    """ Last function called
+    """
+    try:
+        with open(dest_lua, 'r') as f:
+            print('Overwriting color in dest file')
+            filedata = f.read()
+            filedata = filedata.replace(default_fg_color, lcolor0)
+            
+    except IOError:
+        print("Could not open {}".format(src))
+        return 1
+    try:
+        with open(dest_lua, 'w') as f:
+            f.write(filedata);
+            
+    except IOError:
+        print("Could not open {}".format(src))
+        return 1
+
+
+
 def read_conf(filename):
     """ Read file
     """
@@ -54,18 +97,19 @@ def write_conf(filedata, dest):
         return 1
 
 
-
 def write_conf_blank(src, dest):
     """ Reload new config file template
     """
     try:
         with open(src, 'r') as f:
+            print('Overwriting config template file')
             filedata = f.read()
+            filedata = filedata.replace('--{{ COLOR0 }}', "    color0 = '{}',".format(ccolor0))
+            filedata = filedata.replace('--{{ COLOR1 }}', "    color1 = '{}',".format(ccolor1))
             
     except IOError:
         print("Could not open {}".format(src))
         return 1
-
     try:
         with open(dest, 'w') as f:
             f.write(filedata);
@@ -148,7 +192,7 @@ def meminfo():
             meminfo[line.split(':')[0]] = line.split(':')[1].strip()
     return meminfo
 
-def write_batconf_lua():
+def write_batconf():
     """ Prepare lua config for BATTERY if detected
     """
 
@@ -170,37 +214,41 @@ def write_batconf_lua():
     
     if BAT is not None:
         batconf_lua = []
+        batconf_conky = []
         alpha = 0.6
         radius = 18
         thickness = 10
         data = { 'arg': 'BAT{}'.format(BAT), 'bg_alpha': alpha, 'radius': radius, 'thickness': thickness} 
 
+        print('Writing BATTERY LUA config in template file')
         new_block = "{{\n name='battery_percent',\n arg='{arg}',\n max=100,\n bg_colour=0x3b3b3b,\n bg_alpha={bg_alpha},\n fg_colour=0x34cdff,\n fg_alpha=0.8,\n x=274, y=464,\n radius={radius},\n thickness={thickness},\n start_angle=180,\n end_angle=420\n}},\n".format(**data)
         batconf_lua.append(new_block)
-
-        print('Writing BATTERY LUA config in template file')
-
         filedata = read_conf(dest_lua)
-
-        #with open('./conky/rings-v2_tpl', 'r') as f:
-        #    filedata = f.read()
         filedata = filedata.replace('--{{ BATTERY }}', ''.join(batconf_lua))
         filedata = filedata.replace('--{{ BATTERY_WATCH }}', 'battery=tonumber(conky_parse("${{battery_percent {arg} }}"))'.format(**data))
-
         write_conf(filedata, dest_lua)
-        #with open('./conky/rings-v2_tpl', 'w') as f:
-        #    f.write(filedata)
 
 
-def write_fsconf_lua(disk):
+        print('Writing BATTERY conky config in template file')
+        new_block = "${{font}}${{color0}}${{goto 278}}${{voffset 0}}${{color1}}${{battery_percent {arg}}}%".format(**data)
+        batconf_conky.append(new_block)
+        filedata = read_conf(dest_conky)
+        filedata = filedata.replace('#{{ BATTERY }}', ''.join(batconf_conky))
+        write_conf(filedata, dest_conky)
+
+def write_fsconf_lua(disk, cpunb):
     """ Prepare lua config for FILESYSTEM
     """
     fsconf_lua = []
+    fsconf_watch = []
     alpha = 0.8
     radius = 40
     # we will spread alpha over 0.4 gradient
     alpha_scale = 0.2
     thickness = 10
+    # for disk monitoring in disk_watch
+    index_start = cpunb + 4
+    print('index_start is {}'.format(index_start))
 
     for cpt in range (len(disk)): 
         
@@ -208,8 +256,15 @@ def write_fsconf_lua(disk):
 
 #        print("data of bg_alpha is {bg_alpha} ".format(**data))
         new_block = "{{\n name='fs_used_perc',\n arg='{arg}',\n max=100,\n bg_colour=0x3b3b3b,\n bg_alpha={bg_alpha},\n fg_colour=0x34cdff,\n fg_alpha=0.8,\n x=220, y=280,\n radius={radius},\n thickness={thickness},\n start_angle=0,\n end_angle=240\n}},\n".format(**data)
-
         fsconf_lua.append(new_block)
+
+        # for DISK_WATCH section
+        index = index_start + cpt
+        with open('./fs_watch') as f:
+            for line in f:
+                test = re.sub(r'FILESYS', data['arg'], line)
+                fsconf_watch.append(re.sub(r'INDEX', format(index), test))
+
 
         alpha -= alpha_scale
         radius -= (thickness +1)
@@ -219,6 +274,12 @@ def write_fsconf_lua(disk):
     filedata = read_conf(dest_lua)
     filedata = filedata.replace('--{{ FILESYSTEM }}', ''.join(fsconf_lua))
     write_conf(filedata, dest_lua)
+
+    print('Writing DISK_WATCH lua config in template file')
+    filedata = read_conf(dest_lua)
+    filedata = filedata.replace('--{{ DISK_WATCH }}', ''.join(fsconf_watch))
+    write_conf(filedata, dest_lua)
+
 
 def write_fsconf_conky(fs):
     """ Prepare conky config for CPU
@@ -233,7 +294,7 @@ def write_fsconf_conky(fs):
             voffset = 0 
         data = { 'voffset': voffset, 'filesys': "{}".format(fs[cpt])} 
 
-        new_block = "${{goto 70}}${{voffset {voffset}}}{filesys}${{color1}}${{alignr 310}}${{fs_used {filesys}}} / ${{fs_size {filesys}}}%\n".format(**data)
+        new_block = "${{goto 70}}${{voffset {voffset}}}{filesys}${{color1}}${{alignr 310}}${{fs_used {filesys}}} / ${{fs_size {filesys}}}\n".format(**data)
         conf.append(new_block)
 
     print('adjusting voffset for FS...')
@@ -414,15 +475,17 @@ if __name__ == "__main__":
 
     # LUA
     write_cpuconf_lua(cpunb)
-    write_fsconf_lua(disks)
+    write_fsconf_lua(disks,cpunb)
     write_netconf_lua(interface)
-    write_batconf_lua()
 
     
     write_cpuconf_conky(cpunb)
     write_fsconf_conky(disks)
     write_netconf_conky(interface)
 
+    write_batconf()
+
+    write_color_lua()
     
 #    with open('./conky/rings-v2_tpl', 'r') as f:
 #        filedata = f.read()
