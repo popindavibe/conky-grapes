@@ -215,20 +215,36 @@ def write_fsconf_lua(disk):
         radius -= (thickness +1)
         thickness -= 1
 
-    #print("cpuconf_lua is {} ".format(cpuconf_lua))
     print('Writing FILESYSTEM LUA config in template file')
-    #regex = re.compile(r"^\{\{ CPU \}\}$", re.MULTILINE)
-
     filedata = read_conf(dest_lua)
-    #with open('./conky/rings-v2_tpl', 'r') as f:
-    #    filedata = f.read()
-        
     filedata = filedata.replace('--{{ FILESYSTEM }}', ''.join(fsconf_lua))
-    #print("filedata = {}".format(filedata))
-    
     write_conf(filedata, dest_lua)
-    #with open('./conky/rings-v2_tpl', 'w') as f:
-    #    f.write(filedata)
+
+def write_fsconf_conky(fs):
+    """ Prepare conky config for CPU
+    """
+    conf = []
+    voffset = -65
+    fs_max = 3
+
+    for cpt in range (len(fs)): 
+
+        if cpt > 0:
+            voffset = 0 
+        data = { 'voffset': voffset, 'filesys': "{}".format(fs[cpt])} 
+
+        new_block = "${{goto 70}}${{voffset {voffset}}}{filesys}${{color1}}${{alignr 310}}${{fs_used {filesys}}} / ${{fs_size {filesys}}}%\n".format(**data)
+        conf.append(new_block)
+
+    print('adjusting voffset for FS...')
+    adjust = 12 + ((fs_max - len(fs)) *10)
+    new_block = "${{font Michroma:size=10}}${{color0}}${{goto 68}}${{voffset {0}}}FILESYSTEM".format(adjust)
+    conf.append(new_block)
+
+    print('Writing FS conky config in template file')
+    filedata = read_conf(dest_conky)
+    filedata = filedata.replace('#{{ FILESYSTEM }}', ''.join(conf))
+    write_conf(filedata, dest_conky)
 
 
 def write_cpuconf_lua(cpunb):
@@ -236,7 +252,6 @@ def write_cpuconf_lua(cpunb):
     """
     # Testing
     #cpunb = 8 
-    
     cpuconf_lua = []
     radius = 86
     max_cpu_display = 8
@@ -248,48 +263,68 @@ def write_cpuconf_lua(cpunb):
     print('We have {} CPUs'.format(cpunb))
     if cpunb >= max_cpu_display:
         cpunb = max_cpu_display
+    print('We keep {} CPUs'.format(cpunb))
 
-    
     if cpunb > 4:
         thickness_max -= (cpunb - 3)
         radius = 88
-
     thickness = thickness_max 
 
     for cpt in range (cpunb): 
-        
         data = { 'arg': "cpu{}".format(cpt+1), 'bg_alpha': alpha, 'radius': radius, 'thickness': thickness} 
-
-#        print("data of bg_alpha is {bg_alpha} ".format(**data))
         new_block = "{{\n name='cpu',\n arg='{arg}',\n max=100,\n bg_colour=0x3b3b3b,\n bg_alpha={bg_alpha},\n fg_colour=0x34cdff,\n fg_alpha=0.8,\n x=200, y=120,\n radius={radius},\n thickness={thickness},\n start_angle=0,\n end_angle=240\n}},\n".format(**data)
-
         cpuconf_lua.append(new_block)
-
         alpha -= alpha_scale
         radius -= (thickness +1)
-
         thickness -= 0.5 
 
-    #print("cpuconf_lua is {} ".format(cpuconf_lua))
     print('Writing CPU LUA config in template file')
-    #regex = re.compile(r"^\{\{ CPU \}\}$", re.MULTILINE)
-
     filedata = read_conf(dest_lua)
-    #with open('./conky/rings-v2_tpl', 'r') as f:
-    #    filedata = f.read()
-        
     filedata = filedata.replace('--{{ CPU }}', ''.join(cpuconf_lua))
-    #print("filedata = {}".format(filedata))
-    
     write_conf(filedata, dest_lua)
-    #with open('./conky/rings-v2_tpl', 'w') as f:
-    #    f.write(filedata)
 
-    #for line in f:
-    #    if regex.search(line) is not None:
-    #        line = regex.sub(format(print(''.join(cpuconf_lua))), line)
+def write_cpuconf_conky(cpunb):
+    """ Prepare conky config for CPU
+    """
+    # Testing
+    #cpunb = 8 
+    cpuconf = []
+    voffset = 3
+    max_cpu_display = 8
 
-def write_netconf(interface):
+    # bring lines closer if many cpus
+    if cpunb > 4:
+        if cpunb > 6:
+            voffset = 0.5
+        else:
+            voffset = 1.5
+
+    print('We have {} CPUs'.format(cpunb))
+    if cpunb >= max_cpu_display:
+        cpunb = max_cpu_display
+    print('We keep {} CPUs'.format(cpunb))
+
+    if cpunb > 4:
+        voffset -= 1
+
+    for cpt in range (cpunb): 
+        data = { 'voffset': voffset, 'cpu': "{}".format(cpt+1)} 
+
+        new_block = "${{voffset {voffset}}}${{goto 120}}${{color1}}CPU {cpu}${{alignr 330}}${{color1}}${{cpu cpu{cpu}}}%\n".format(**data)
+        cpuconf.append(new_block)
+
+    print('adjusting voffset for top cpu processes...')
+    adjust = 34 - (voffset * cpunb)
+    new_block = "${{goto 50}}${{voffset {0}}}${{color1}}${{top name 1}}${{alignr 306}}${{top cpu 1}}%".format(adjust)
+    cpuconf.append(new_block)
+
+    print('Writing CPU conky config in template file')
+    filedata = read_conf(dest_conky)
+    filedata = filedata.replace('#{{ CPU }}', ''.join(cpuconf))
+    write_conf(filedata, dest_conky)
+
+
+def write_netconf_lua(interface):
     """ Prepare lua config for NETWORK
     """
     netconf_lua = []
@@ -305,21 +340,14 @@ def write_netconf(interface):
         new_block = "{{\n name='{name}',\n arg='',\n max=125000,\n bg_colour=0x3b3b3b,\n bg_alpha={bg_alpha},\n fg_colour=0x34cdff,\n fg_alpha=0.8,\n x=290, y=345,\n radius={radius},\n thickness={thickness},\n start_angle=180,\n end_angle=420\n}},\n".format(**data)
 
         netconf_lua.append(new_block)
-
         alpha -= alpha_scale
         radius -= (thickness +1)
         thickness -= 2
 
     print('Writing NETWORK LUA config in template file')
-
     filedata = read_conf(dest_lua)
-    #with open('./conky/rings-v2_tpl', 'r') as f:
-    #    filedata = f.read()
     filedata = filedata.replace('--{{ NETWORK }}', ''.join(netconf_lua))
-    
     write_conf(filedata, dest_lua)
-    #with open('./conky/rings-v2_tpl', 'w') as f:
-    #    f.write(filedata)
 
 
 def display_netconf(interface):
@@ -359,17 +387,23 @@ if __name__ == "__main__":
     display_netconf(interface)
 
     disks = disk_select()
-    print('Locally mounted filesystem identified: {0}'.format(disks))
+    print('Locally mounted filesystem kept: {0}'.format(disks))
 
 
     # init file
     write_conf_blank(src_lua, dest_lua)
     write_conf_blank(src_conky, dest_conky)
 
+    # LUA
     write_cpuconf_lua(cpunb)
     write_fsconf_lua(disks)
-    write_netconf(interface)
+    write_netconf_lua(interface)
     write_batconf_lua()
+
+    
+    write_cpuconf_conky(cpunb)
+    write_fsconf_conky(disks)
+    write_netconf_conky(interface)
 
     
 #    with open('./conky/rings-v2_tpl', 'r') as f:
