@@ -24,6 +24,56 @@ print ("System information",used)
 print ("\nTime is now",now)
 print ("Which interprets as",means)
 
+src_lua = './conky/rings-v2_tpl'
+dest_lua = './conky/rings-v2_gen.lua'
+
+src_conky = './conky_tpl'
+dest_conky = './conky_gen.conkyrc'
+
+def read_conf(filename):
+    """ Read file
+    """
+    try:
+        with open(filename, 'r') as f:
+            filedata = f.read();
+    except IOError:
+        print("Could not open {}".format(filename))
+        return 1
+
+    return filedata
+
+
+def write_conf(filedata, dest):
+    """ Write new config file
+    """
+    try:
+        with open(dest, 'w') as f:
+            f.write(filedata);
+    except IOError:
+        print("Could not open {}".format(dest))
+        return 1
+
+
+
+def write_conf_blank(src, dest):
+    """ Reload new config file template
+    """
+    try:
+        with open(src, 'r') as f:
+            filedata = f.read()
+            
+    except IOError:
+        print("Could not open {}".format(src))
+        return 1
+
+    try:
+        with open(dest, 'w') as f:
+            f.write(filedata);
+            
+    except IOError:
+        print("Could not open {}".format(src))
+        return 1
+
 
 def cpu_number():
 
@@ -125,17 +175,21 @@ def write_batconf_lua():
         thickness = 10
         data = { 'arg': 'BAT{}'.format(BAT), 'bg_alpha': alpha, 'radius': radius, 'thickness': thickness} 
 
-        new_block = "{{\n name='battery_percent',\n args='{arg}',\n max=100,\n bg_colour=0x3b3b3b,\n bg_alpha={bg_alpha},\n fg_colour=0x34cdff,\n fg_alpha=0.8,\n x=274, y=464,\n radius={radius},\n thickness={thickness},\n start_angle=180,\n end_angle=420\n}},\n".format(**data)
+        new_block = "{{\n name='battery_percent',\n arg='{arg}',\n max=100,\n bg_colour=0x3b3b3b,\n bg_alpha={bg_alpha},\n fg_colour=0x34cdff,\n fg_alpha=0.8,\n x=274, y=464,\n radius={radius},\n thickness={thickness},\n start_angle=180,\n end_angle=420\n}},\n".format(**data)
         batconf_lua.append(new_block)
 
         print('Writing BATTERY LUA config in template file')
 
-        with open('./conky/rings-v2_tpl', 'r') as f:
-            filedata = f.read()
-        filedata = filedata.replace('--{{ BATTERY }}', ''.join(batconf_lua))
+        filedata = read_conf(dest_lua)
 
-        with open('./conky/rings-v2_tpl', 'w') as f:
-            f.write(filedata)
+        #with open('./conky/rings-v2_tpl', 'r') as f:
+        #    filedata = f.read()
+        filedata = filedata.replace('--{{ BATTERY }}', ''.join(batconf_lua))
+        filedata = filedata.replace('--{{ BATTERY_WATCH }}', 'battery=tonumber(conky_parse("${{battery_percent {arg} }}"))'.format(**data))
+
+        write_conf(filedata, dest_lua)
+        #with open('./conky/rings-v2_tpl', 'w') as f:
+        #    f.write(filedata)
 
 
 def write_fsconf_lua(disk):
@@ -153,46 +207,52 @@ def write_fsconf_lua(disk):
         data = { 'arg': disk[cpt], 'bg_alpha': alpha, 'radius': radius, 'thickness': thickness} 
 
 #        print("data of bg_alpha is {bg_alpha} ".format(**data))
-        new_block = "{{\n name='fs_used_perc',\n args='{arg}',\n max=100,\n bg_colour=0x3b3b3b,\n bg_alpha={bg_alpha},\n fg_colour=0x34cdff,\n fg_alpha=0.8,\n x=220, y=280,\n radius={radius},\n thickness={thickness},\n start_angle=0,\n end_angle=240\n}},\n".format(**data)
+        new_block = "{{\n name='fs_used_perc',\n arg='{arg}',\n max=100,\n bg_colour=0x3b3b3b,\n bg_alpha={bg_alpha},\n fg_colour=0x34cdff,\n fg_alpha=0.8,\n x=220, y=280,\n radius={radius},\n thickness={thickness},\n start_angle=0,\n end_angle=240\n}},\n".format(**data)
 
         fsconf_lua.append(new_block)
 
         alpha -= alpha_scale
-        radius -= (thickness + 2)
+        radius -= (thickness +1)
         thickness -= 1
 
     #print("cpuconf_lua is {} ".format(cpuconf_lua))
     print('Writing FILESYSTEM LUA config in template file')
     #regex = re.compile(r"^\{\{ CPU \}\}$", re.MULTILINE)
 
-    with open('./conky/rings-v2_tpl', 'r') as f:
-        filedata = f.read()
+    filedata = read_conf(dest_lua)
+    #with open('./conky/rings-v2_tpl', 'r') as f:
+    #    filedata = f.read()
         
     filedata = filedata.replace('--{{ FILESYSTEM }}', ''.join(fsconf_lua))
     #print("filedata = {}".format(filedata))
     
-    with open('./conky/rings-v2_tpl', 'w') as f:
-        f.write(filedata)
+    write_conf(filedata, dest_lua)
+    #with open('./conky/rings-v2_tpl', 'w') as f:
+    #    f.write(filedata)
 
 
 def write_cpuconf_lua(cpunb):
     """ Prepare lua config for CPU
     """
-    #cpt = 1
+    # Testing
+    #cpunb = 8 
+    
     cpuconf_lua = []
+    radius = 86
     max_cpu_display = 8
+    thickness_max = 13
+    alpha = 0.7
+    # we will spread alpha over 0.6 gradient
+    alpha_scale = 0.4 / cpunb 
+
     print('We have {} CPUs'.format(cpunb))
     if cpunb >= max_cpu_display:
         cpunb = max_cpu_display
 
-    alpha = 0.7
-    radius = 86
-    # we will spread alpha over 0.4 gradient
-    alpha_scale = 0.4 / cpunb 
-    thickness_max = 13
     
     if cpunb > 4:
-        thickness_max = 13 - (cpunb - 4)
+        thickness_max -= (cpunb - 3)
+        radius = 88
 
     thickness = thickness_max 
 
@@ -201,30 +261,65 @@ def write_cpuconf_lua(cpunb):
         data = { 'arg': "cpu{}".format(cpt+1), 'bg_alpha': alpha, 'radius': radius, 'thickness': thickness} 
 
 #        print("data of bg_alpha is {bg_alpha} ".format(**data))
-        new_block = "{{\n name='cpu',\n args='{arg}',\n max=100,\n bg_colour=0x3b3b3b,\n bg_alpha={bg_alpha},\n fg_colour=0x34cdff,\n fg_alpha=0.8,\n x=200, y=120,\n radius={radius},\n thickness={thickness},\n start_angle=0,\n end_angle=240\n}},\n".format(**data)
+        new_block = "{{\n name='cpu',\n arg='{arg}',\n max=100,\n bg_colour=0x3b3b3b,\n bg_alpha={bg_alpha},\n fg_colour=0x34cdff,\n fg_alpha=0.8,\n x=200, y=120,\n radius={radius},\n thickness={thickness},\n start_angle=0,\n end_angle=240\n}},\n".format(**data)
 
         cpuconf_lua.append(new_block)
 
         alpha -= alpha_scale
-        radius -= (thickness + 2)
-        thickness -= 1
+        radius -= (thickness +1)
+
+        thickness -= 0.5 
 
     #print("cpuconf_lua is {} ".format(cpuconf_lua))
     print('Writing CPU LUA config in template file')
     #regex = re.compile(r"^\{\{ CPU \}\}$", re.MULTILINE)
 
-    with open('./conky/rings-v2_tpl', 'r') as f:
-        filedata = f.read()
+    filedata = read_conf(dest_lua)
+    #with open('./conky/rings-v2_tpl', 'r') as f:
+    #    filedata = f.read()
         
     filedata = filedata.replace('--{{ CPU }}', ''.join(cpuconf_lua))
     #print("filedata = {}".format(filedata))
     
-    with open('./conky/rings-v2_tpl', 'w') as f:
-        f.write(filedata)
+    write_conf(filedata, dest_lua)
+    #with open('./conky/rings-v2_tpl', 'w') as f:
+    #    f.write(filedata)
 
     #for line in f:
     #    if regex.search(line) is not None:
     #        line = regex.sub(format(print(''.join(cpuconf_lua))), line)
+
+def write_netconf(interface):
+    """ Prepare lua config for NETWORK
+    """
+    netconf_lua = []
+    alpha = 0.8
+    radius = 30
+    # we will spread alpha over 0.4 gradient
+    alpha_scale = 0.2
+    thickness = 12
+
+    for speed in  ['downspeedf', 'upspeedf']:
+        
+        data = { 'name': speed, 'bg_alpha': alpha, 'radius': radius, 'thickness': thickness} 
+        new_block = "{{\n name='{name}',\n arg='',\n max=125000,\n bg_colour=0x3b3b3b,\n bg_alpha={bg_alpha},\n fg_colour=0x34cdff,\n fg_alpha=0.8,\n x=290, y=345,\n radius={radius},\n thickness={thickness},\n start_angle=180,\n end_angle=420\n}},\n".format(**data)
+
+        netconf_lua.append(new_block)
+
+        alpha -= alpha_scale
+        radius -= (thickness +1)
+        thickness -= 2
+
+    print('Writing NETWORK LUA config in template file')
+
+    filedata = read_conf(dest_lua)
+    #with open('./conky/rings-v2_tpl', 'r') as f:
+    #    filedata = f.read()
+    filedata = filedata.replace('--{{ NETWORK }}', ''.join(netconf_lua))
+    
+    write_conf(filedata, dest_lua)
+    #with open('./conky/rings-v2_tpl', 'w') as f:
+    #    f.write(filedata)
 
 
 def display_netconf(interface):
@@ -254,7 +349,6 @@ if __name__ == "__main__":
 
     cpunb = cpu_number()
     print('Number of CPU(s): {0}'.format(cpunb))
-    write_cpuconf_lua(cpunb)
 
     meminfo = meminfo()
     print('Total memory: {0}'.format(meminfo['MemTotal']))
@@ -266,10 +360,23 @@ if __name__ == "__main__":
 
     disks = disk_select()
     print('Locally mounted filesystem identified: {0}'.format(disks))
-    write_fsconf_lua(disks)
 
+
+    # init file
+    write_conf_blank(src_lua, dest_lua)
+    write_conf_blank(src_conky, dest_conky)
+
+    write_cpuconf_lua(cpunb)
+    write_fsconf_lua(disks)
+    write_netconf(interface)
     write_batconf_lua()
 
+    
+#    with open('./conky/rings-v2_tpl', 'r') as f:
+#        filedata = f.read()
+#    
+#    with open('./conky/rings-v2_gen.lua', 'w') as f:
+#        f.write(filedata)
 
 
 
