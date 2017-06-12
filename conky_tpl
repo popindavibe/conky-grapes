@@ -64,7 +64,7 @@ conky.config = {
 --{{ COLOR0 }}
 --{{ COLOR1 }}
 
-	lua_load = './conky/rings-v2_gen.lua',
+	lua_load = '~/conky/conky-grappes/rings-v2_gen.lua',
 	lua_draw_hook_pre = 'conky_main',
 };
 

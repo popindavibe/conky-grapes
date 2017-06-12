@@ -25,8 +25,8 @@ print ("System information",used)
 print ("\nTime is now",now)
 print ("Which interprets as",means)
 
-src_lua = './conky/rings-v2_tpl'
-dest_lua = './conky/rings-v2_gen.lua'
+src_lua = './rings-v2_tpl'
+dest_lua = './rings-v2_gen.lua'
 
 src_conky = './conky_tpl'
 dest_conky = './conky_gen.conkyrc'
