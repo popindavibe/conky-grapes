@@ -43,8 +43,8 @@ dest_conky = './conky_gen.conkyrc'
 ## brown    | d7bd4c
 
 default_fg_color = '0x34cdff'
-color0 = 'd70751'
-color1 = '323232'
+color0 = '1dff22'
+color1 = 'efefef'
 # for conky
 ccolor0 = '#'+color0
 ccolor1 = '#'+color1
