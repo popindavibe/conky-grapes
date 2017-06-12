@@ -80,7 +80,7 @@ settings_table = {
         fg_alpha=0.8,
         x=340, y=234,
         radius=45,
-        thickness=10,
+        thickness=12,
         start_angle=180,
         end_angle=420
     },
@@ -96,7 +96,7 @@ settings_table = {
         fg_alpha=0.8,
         x=230, y=406,
         radius=10,
-        thickness=4,
+        thickness=6,
         start_angle=0,
         end_angle=240
     },
@@ -109,8 +109,8 @@ settings_table = {
         fg_colour=0x34cdff,
         fg_alpha=0.8,
         x=230, y=406,
-        radius=18,
-        thickness=8,
+        radius=19,
+        thickness=9,
         start_angle=0,
         end_angle=240
     },
@@ -123,14 +123,14 @@ settings_table = {
         fg_colour=0x34cdff,
         fg_alpha=0.8,
         x=230, y=406,
-        radius=30,
+        radius=31,
         thickness=12,
         start_angle=0,
         end_angle=240
     },
 --{{ BATTERY }}
     {
-        name='',
+        name='kernel', --just to avoid unknown viariable '$' in console
         arg='',
         max=100,
         bg_colour=0x3b3b3b,
@@ -138,7 +138,7 @@ settings_table = {
         fg_colour=0x34cdff,
         fg_alpha=0.6,
         x=274, y=464,
-        radius=3,
+        radius=5,
         thickness=13,
         start_angle=0,
         end_angle=360
@@ -254,13 +254,15 @@ function battery_watch()
 end
 
 -- Contrôle de l'interface active
-function iface_watch()
-
-    iface=conky_parse("${if_existing /proc/net/route enp1s0f2}enp1s0f2${else}wlan0${endif}")
-
-    settings_table[11]['arg']=iface
-    settings_table[12]['arg']=iface
-end
+-- choice to not probe network interface once conky is running. 
+-- just call again create_conky.py to update if gateway interface has changed
+--function iface_watch()
+--
+--    iface=conky_parse("${if_existing /proc/net/route enp1s0f2}enp1s0f2${else}wlan0${endif}")
+--
+--    settings_table[11]['arg']=iface
+--    settings_table[12]['arg']=iface
+--end
 
 function conky_draw_bg()
     if conky_window==nil then return end
@@ -288,7 +290,7 @@ end
 function conky_main()
     temp_watch()
     disk_watch()
-    iface_watch()
+    --iface_watch()
     battery_watch()
     conky_ring_stats()
 -- quand fond nécessaire

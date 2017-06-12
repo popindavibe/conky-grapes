@@ -44,7 +44,7 @@ dest_conky = './conky_gen.conkyrc'
 
 default_fg_color = '0x34cdff'
 color0 = 'd70751'
-color1 = '323232'
+color1 = 'efefef'
 # for conky
 ccolor0 = '#'+color0
 ccolor1 = '#'+color1
@@ -230,7 +230,7 @@ def write_batconf():
 
 
         print('Writing BATTERY conky config in template file')
-        new_block = "${{font}}${{color0}}${{goto 278}}${{voffset 0}}${{color1}}${{battery_percent {arg}}}%".format(**data)
+        new_block = "${{font}}${{color0}}${{goto 280}}${{voffset 1}}${{color1}}${{battery_percent {arg}}}%".format(**data)
         batconf_conky.append(new_block)
         filedata = read_conf(dest_conky)
         filedata = filedata.replace('#{{ BATTERY }}', ''.join(batconf_conky))
@@ -396,13 +396,13 @@ def write_netconf_lua(interface):
     thickness = 12
 
     for speed in  ['downspeedf', 'upspeedf']:
-        data = { 'name': speed, 'bg_alpha': alpha, 'radius': radius, 'thickness': thickness} 
-        new_block = "{{\n name='{name}',\n arg='',\n max=125000,\n bg_colour=0x3b3b3b,\n bg_alpha={bg_alpha},\n fg_colour=0x34cdff,\n fg_alpha=0.8,\n x=290, y=345,\n radius={radius},\n thickness={thickness},\n start_angle=180,\n end_angle=420\n}},\n".format(**data)
+        data = { 'name': speed, 'arg': interface[0] , 'bg_alpha': alpha, 'radius': radius, 'thickness': thickness} 
+        new_block = "{{\n name='{name}',\n arg='{arg}',\n max=125000,\n bg_colour=0x3b3b3b,\n bg_alpha={bg_alpha},\n fg_colour=0x34cdff,\n fg_alpha=0.8,\n x=290, y=345,\n radius={radius},\n thickness={thickness},\n start_angle=180,\n end_angle=420\n}},\n".format(**data)
 
         netconf_lua.append(new_block)
         alpha -= alpha_scale
         radius -= (thickness +1)
-        thickness -= 2
+        thickness -= 1
 
     print('Writing NETWORK LUA config in template file')
     filedata = read_conf(dest_lua)
