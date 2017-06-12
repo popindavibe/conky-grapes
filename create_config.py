@@ -7,6 +7,7 @@ import time
 import platform
 import re
 from collections import OrderedDict
+import sys
 
 unumber = os.getuid()
 pnumber = os.getpid()
@@ -42,14 +43,28 @@ dest_conky = './conky_gen.conkyrc'
 ## darkgray | 323232
 ## brown    | d7bd4c
 
+couleurs = { 'orange': 'ff8523', 'red': 'ff1d2b', 'green': '1dff22', 'pink': 'd70751', 'skyblue': '008cff', 'brown': 'd7bd4c', 'blue': '34cdff', 'white': 'efefef', 'grey': '323232' }
+
 default_fg_color = '0x34cdff'
-color0 = 'd70751'
-color1 = 'efefef'
-# for conky
-ccolor0 = '#'+color0
-ccolor1 = '#'+color1
-# for lua
-lcolor0 = '0x'+color0
+
+def init(args):
+    if len(args) > 0:
+        print('args is {}'.format(args))
+        color0 = couleurs[args[0]]
+        color1 = couleurs[args[1]]
+    else:
+        color0 = '34cdff'
+        color1 = 'efefef'
+
+    print('Chosen main color is : {}'.format(color0))
+    print('Chosen text color is : {}'.format(color1))
+    # for conky
+    ccolor0 = '#'+color0
+    ccolor1 = '#'+color1
+    # for lua
+    lcolor0 = '0x'+color0
+
+    return ccolor0, ccolor1, lcolor0
 
 def write_color_lua():
     """ Last function called
@@ -469,7 +484,9 @@ if __name__ == "__main__":
     print('Locally mounted filesystem kept: {0}'.format(disks))
 
 
+
     # init file
+    ccolor0, ccolor1, lcolor0 = init(sys.argv[1:])
     write_conf_blank(src_lua, dest_lua)
     write_conf_blank(src_conky, dest_conky)
 
