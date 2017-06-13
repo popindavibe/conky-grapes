@@ -12,28 +12,29 @@ conky.config = {
 	no_buffers = true,
 
 	text_buffer_size = 2048,
---imlib_cache_size 0
+    --imlib_cache_size 0
 
 	temperature_unit = 'celsius',
 
--- XFCE lightdm backround issue
-	own_window_argb_visual = true,
-	own_window_argb_value = 0,
+-- With class override, gets images to display properly (black bg)
+    own_window_argb_visual = false, 
+	own_window_argb_value = 255,
 
 -- Window specifications #
-	own_window_class = 'Conky',
+    own_window_class = override,
 	own_window = true,
 -- XFCE4 = desktop, sinon 'normal'
 	own_window_type = 'desktop',
 	own_window_transparent = true,
---own_window_hints undecorate
+
 -- XFCE4 - undecorate not working
 	own_window_hints = 'sticky,skip_taskbar,skip_pager,below',
 
 	border_inner_margin = 0,
 	border_outer_margin = 0,
 
-	minimum_width = 520, minimum_height = 600,
+	minimum_width = 520, 
+    minimum_height = 600,
 	maximum_width = 520,
 
 	alignment = 'top_right',
@@ -46,7 +47,7 @@ conky.config = {
 	draw_borders = false,
 	draw_graph_borders = false,
 
---default_color gray
+-- useless
 	default_shade_color = 'red',
 	default_outline_color = 'green',
 
@@ -60,18 +61,10 @@ conky.config = {
 -- TEXT color
 	default_color = '#333333',
 
--- GREEN
---	color0 b2ff34
---	color1 efefef
-
--- BLUE
---	color0 = '#34cdff',
---	color1 = '#efefef',
-
 --{{ COLOR0 }}
 --{{ COLOR1 }}
 
-	lua_load = './conky/rings-v2_gen.lua',
+	lua_load = '~/conky/conky-grappes/rings-v2_gen.lua',
 	lua_draw_hook_pre = 'conky_main',
 };
 

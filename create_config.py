@@ -7,6 +7,7 @@ import time
 import platform
 import re
 from collections import OrderedDict
+import sys
 
 unumber = os.getuid()
 pnumber = os.getpid()
@@ -24,8 +25,8 @@ print ("System information",used)
 print ("\nTime is now",now)
 print ("Which interprets as",means)
 
-src_lua = './conky/rings-v2_tpl'
-dest_lua = './conky/rings-v2_gen.lua'
+src_lua = './rings-v2_tpl'
+dest_lua = './rings-v2_gen.lua'
 
 src_conky = './conky_tpl'
 dest_conky = './conky_gen.conkyrc'
@@ -42,14 +43,28 @@ dest_conky = './conky_gen.conkyrc'
 ## darkgray | 323232
 ## brown    | d7bd4c
 
+couleurs = { 'yellow': 'fffd1d', 'orange': 'ff8523', 'red': 'ff1d2b', 'green': '1dff22', 'pink': 'd70751', 'skyblue': '008cff', 'brown': 'd7bd4c', 'blue': '34cdff', 'white': 'efefef', 'grey': '323232', 'violet': 'bb07d7' }
+
 default_fg_color = '0x34cdff'
-color0 = '1dff22'
-color1 = 'efefef'
-# for conky
-ccolor0 = '#'+color0
-ccolor1 = '#'+color1
-# for lua
-lcolor0 = '0x'+color0
+
+def init(args):
+    if len(args) > 0:
+        print('args is {}'.format(args))
+        color0 = couleurs[args[0]]
+        color1 = couleurs[args[1]]
+    else:
+        color0 = '34cdff'
+        color1 = 'efefef'
+
+    print('Chosen main color is : {}'.format(color0))
+    print('Chosen text color is : {}'.format(color1))
+    # for conky
+    ccolor0 = '#'+color0
+    ccolor1 = '#'+color1
+    # for lua
+    lcolor0 = '0x'+color0
+
+    return ccolor0, ccolor1, lcolor0
 
 def write_color_lua():
     """ Last function called
@@ -230,7 +245,7 @@ def write_batconf():
 
 
         print('Writing BATTERY conky config in template file')
-        new_block = "${{font}}${{color0}}${{goto 278}}${{voffset 0}}${{color1}}${{battery_percent {arg}}}%".format(**data)
+        new_block = "${{font}}${{color0}}${{goto 280}}${{voffset 1}}${{color1}}${{battery_percent {arg}}}%".format(**data)
         batconf_conky.append(new_block)
         filedata = read_conf(dest_conky)
         filedata = filedata.replace('#{{ BATTERY }}', ''.join(batconf_conky))
@@ -396,13 +411,13 @@ def write_netconf_lua(interface):
     thickness = 12
 
     for speed in  ['downspeedf', 'upspeedf']:
-        data = { 'name': speed, 'bg_alpha': alpha, 'radius': radius, 'thickness': thickness} 
-        new_block = "{{\n name='{name}',\n arg='',\n max=125000,\n bg_colour=0x3b3b3b,\n bg_alpha={bg_alpha},\n fg_colour=0x34cdff,\n fg_alpha=0.8,\n x=290, y=345,\n radius={radius},\n thickness={thickness},\n start_angle=180,\n end_angle=420\n}},\n".format(**data)
+        data = { 'name': speed, 'arg': interface[0] , 'bg_alpha': alpha, 'radius': radius, 'thickness': thickness} 
+        new_block = "{{\n name='{name}',\n arg='{arg}',\n max=125000,\n bg_colour=0x3b3b3b,\n bg_alpha={bg_alpha},\n fg_colour=0x34cdff,\n fg_alpha=0.8,\n x=290, y=345,\n radius={radius},\n thickness={thickness},\n start_angle=180,\n end_angle=420\n}},\n".format(**data)
 
         netconf_lua.append(new_block)
         alpha -= alpha_scale
         radius -= (thickness +1)
-        thickness -= 2
+        thickness -= 1
 
     print('Writing NETWORK LUA config in template file')
     filedata = read_conf(dest_lua)
@@ -469,7 +484,9 @@ if __name__ == "__main__":
     print('Locally mounted filesystem kept: {0}'.format(disks))
 
 
+
     # init file
+    ccolor0, ccolor1, lcolor0 = init(sys.argv[1:])
     write_conf_blank(src_lua, dest_lua)
     write_conf_blank(src_conky, dest_conky)
 
