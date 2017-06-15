@@ -43,7 +43,7 @@ dest_conky = './conky_gen.conkyrc'
 ## darkgray | 323232
 ## brown    | d7bd4c
 
-couleurs = { 'yellow': 'fffd1d', 'orange': 'ff8523', 'red': 'ff1d2b', 'green': '1dff22', 'pink': 'd70751', 'skyblue': '008cff', 'brown': 'd7bd4c', 'blue': '34cdff', 'white': 'efefef', 'grey': '323232', 'violet': 'bb07d7' }
+couleurs = { 'yellow': 'fffd1d', 'orange': 'ff8523', 'red': 'ff1d2b', 'green': '1dff22', 'pink': 'd70751', 'skyblue': '008cff', 'brown': 'd7bd4c', 'blue': '34cdff', 'white': 'efefef', 'grey': '323232', 'violet': 'bb07d7', 'asse': '006a32' }
 
 default_fg_color = '0x34cdff'
 
