@@ -33,25 +33,25 @@ dest_conky = './conky_gen.conkyrc'
 
 # Default
 ## blue     | 34cdff
-## whitish  | efefef
+## white    | efefef
 
-## red      | ff1d2b
-## green    | 1dff22
-## pink     | d70751
-## orange   | ff8523
-## skyblue  | 008cff
-## darkgray | 323232
-## brown    | d7bd4c
 
-couleurs = { 'yellow': 'fffd1d', 'orange': 'ff8523', 'red': 'ff1d2b', 'green': '1dff22', 'pink': 'd70751', 'skyblue': '008cff', 'brown': 'd7bd4c', 'blue': '34cdff', 'white': 'efefef', 'grey': '323232', 'violet': 'bb07d7' }
+couleurs = { 'yellow': 'fffd1d', 'orange': 'ff8523', 'red': 'ff1d2b', 'green': '1dff22', 'pink': 'd70751', 'skyblue': '008cff', 'brown': 'd7bd4c', 'blue': '34cdff', 'white': 'efefef', 'grey': '323232', 'violet': 'bb07d7', 'asse': '006a32' }
 
 default_fg_color = '0x34cdff'
 
 def init(args):
+    """Initialisation of colors
+    """
     if len(args) > 0:
         print('args is {}'.format(args))
-        color0 = couleurs[args[0]]
-        color1 = couleurs[args[1]]
+        try:
+            color0 = couleurs[args[0]]
+            color1 = couleurs[args[1]]
+        except KeyError:
+            print("[Error] Colors metioned are not available, switching to default")
+            color0 = '34cdff'
+            color1 = 'efefef'
     else:
         color0 = '34cdff'
         color1 = 'efefef'
@@ -66,28 +66,6 @@ def init(args):
 
     return ccolor0, ccolor1, lcolor0
 
-def write_color_lua():
-    """ Last function called
-    """
-    try:
-        with open(dest_lua, 'r') as f:
-            print('Overwriting color in dest file')
-            filedata = f.read()
-            filedata = filedata.replace(default_fg_color, lcolor0)
-            
-    except IOError:
-        print("Could not open {}".format(src))
-        return 1
-    try:
-        with open(dest_lua, 'w') as f:
-            f.write(filedata);
-            
-    except IOError:
-        print("Could not open {}".format(src))
-        return 1
-
-
-
 def read_conf(filename):
     """ Read file
     """
@@ -95,7 +73,7 @@ def read_conf(filename):
         with open(filename, 'r') as f:
             filedata = f.read();
     except IOError:
-        print("Could not open {}".format(filename))
+        print("[Error] Could not open {}".format(filename))
         return 1
 
     return filedata
@@ -108,30 +86,24 @@ def write_conf(filedata, dest):
         with open(dest, 'w') as f:
             f.write(filedata);
     except IOError:
-        print("Could not open {}".format(dest))
+        print("[Error] Could not open {}".format(dest))
         return 1
 
+def write_color_lua():
+    """Last function called
+    """
+    datain = read_conf(dest_lua)
+    filedata = datain.replace(default_fg_color, lcolor0)
+    write_conf(filedata, dest_lua)
 
 def write_conf_blank(src, dest):
     """ Reload new config file template
     """
-    try:
-        with open(src, 'r') as f:
-            print('Overwriting config template file')
-            filedata = f.read()
-            filedata = filedata.replace('--{{ COLOR0 }}', "    color0 = '{}',".format(ccolor0))
-            filedata = filedata.replace('--{{ COLOR1 }}', "    color1 = '{}',".format(ccolor1))
-            
-    except IOError:
-        print("Could not open {}".format(src))
-        return 1
-    try:
-        with open(dest, 'w') as f:
-            f.write(filedata);
-            
-    except IOError:
-        print("Could not open {}".format(src))
-        return 1
+    filedata = read_conf(src) 
+    print('Overwriting config template file')
+    filedata = filedata.replace('--{{ COLOR0 }}', "    color0 = '{}',".format(ccolor0))
+    filedata = filedata.replace('--{{ COLOR1 }}', "    color1 = '{}',".format(ccolor1))
+    write_conf(filedata, dest)
 
 
 def cpu_number():
@@ -161,7 +133,7 @@ def route_interface():
             if routeinfo[1] == "00000000":
                 gwinterface = routeinfo[0]
     """ Check if the gateway interface is wifi
-    as we'll need to know about that for config
+        as we'll need to know about that for config
     """
     iswifi = False
     with open('/proc/net/wireless') as f:
@@ -190,7 +162,8 @@ def disk_select():
     disks.sort()
     if len(disks) > 3:
         diskKeep = disks[:3]
-        print('Keeping 3 first locally mounted filesystem identified: {0}'.format(diskKeep))
+        print('Keeping 3 first locally mounted filesystem identified: {0}'
+            .format(diskKeep))
     else:
         diskKeep = disks
 
@@ -233,10 +206,28 @@ def write_batconf():
         alpha = 0.6
         radius = 18
         thickness = 10
-        data = { 'arg': 'BAT{}'.format(BAT), 'bg_alpha': alpha, 'radius': radius, 'thickness': thickness} 
+        data = { 
+            'arg': 'BAT{}'.format(BAT),
+            'bg_alpha': alpha,
+            'radius': radius,
+            'thickness': thickness
+            } 
 
         print('Writing BATTERY LUA config in template file')
-        new_block = "{{\n name='battery_percent',\n arg='{arg}',\n max=100,\n bg_colour=0x3b3b3b,\n bg_alpha={bg_alpha},\n fg_colour=0x34cdff,\n fg_alpha=0.8,\n x=274, y=464,\n radius={radius},\n thickness={thickness},\n start_angle=180,\n end_angle=420\n}},\n".format(**data)
+        new_block = """    {{ 
+        name='battery_percent',
+        arg='{arg}', max=100,
+        bg_colour=0x3b3b3b,
+        bg_alpha={bg_alpha},
+        fg_colour=0x34cdff,
+        fg_alpha=0.8,
+        x=274, y=464,
+        radius={radius},
+        thickness={thickness},
+        start_angle=180,
+        end_angle=420
+    }},""".format(**data)
+
         batconf_lua.append(new_block)
         filedata = read_conf(dest_lua)
         filedata = filedata.replace('--{{ BATTERY }}', ''.join(batconf_lua))
@@ -270,9 +261,22 @@ def write_fsconf_lua(disk, cpunb):
         data = { 'arg': disk[cpt], 'bg_alpha': alpha, 'radius': radius, 'thickness': thickness} 
 
 #        print("data of bg_alpha is {bg_alpha} ".format(**data))
-        new_block = "{{\n name='fs_used_perc',\n arg='{arg}',\n max=100,\n bg_colour=0x3b3b3b,\n bg_alpha={bg_alpha},\n fg_colour=0x34cdff,\n fg_alpha=0.8,\n x=220, y=280,\n radius={radius},\n thickness={thickness},\n start_angle=0,\n end_angle=240\n}},\n".format(**data)
-        fsconf_lua.append(new_block)
+        new_block = """\n    {{
+        name='fs_used_perc',
+        arg='{arg}',
+        max=100,
+        bg_colour=0x3b3b3b,
+        bg_alpha={bg_alpha},
+        fg_colour=0x34cdff,
+        fg_alpha=0.8,
+        x=220, y=280,
+        radius={radius},
+        thickness={thickness},
+        start_angle=0,
+        end_angle=240
+    }},""".format(**data)
 
+        fsconf_lua.append(new_block)
         # for DISK_WATCH section
         index = index_start + cpt
         with open('./fs_watch') as f:
@@ -347,8 +351,28 @@ def write_cpuconf_lua(cpunb):
     thickness = thickness_max 
 
     for cpt in range (cpunb): 
-        data = { 'arg': "cpu{}".format(cpt+1), 'bg_alpha': alpha, 'radius': radius, 'thickness': thickness} 
-        new_block = "{{\n name='cpu',\n arg='{arg}',\n max=100,\n bg_colour=0x3b3b3b,\n bg_alpha={bg_alpha},\n fg_colour=0x34cdff,\n fg_alpha=0.8,\n x=200, y=120,\n radius={radius},\n thickness={thickness},\n start_angle=0,\n end_angle=240\n}},\n".format(**data)
+        data = { 
+            'arg': "cpu{}".format(cpt+1),
+            'bg_alpha': alpha,
+            'radius': radius,
+            'thickness': thickness
+            } 
+
+        new_block = """\n    {{    
+        name='cpu',
+        arg='{arg}',
+        max=100,
+        bg_colour=0x3b3b3b,
+        bg_alpha={bg_alpha},
+        fg_colour=0x34cdff,
+        fg_alpha=0.8,
+        x=200, y=120,
+        radius={radius},
+        thickness={thickness},
+        start_angle=0,
+        end_angle=240
+    }},""".format(**data)
+
         cpuconf_lua.append(new_block)
         alpha -= alpha_scale
         radius -= (thickness +1)
@@ -411,8 +435,28 @@ def write_netconf_lua(interface):
     thickness = 12
 
     for speed in  ['downspeedf', 'upspeedf']:
-        data = { 'name': speed, 'arg': interface[0] , 'bg_alpha': alpha, 'radius': radius, 'thickness': thickness} 
-        new_block = "{{\n name='{name}',\n arg='{arg}',\n max=125000,\n bg_colour=0x3b3b3b,\n bg_alpha={bg_alpha},\n fg_colour=0x34cdff,\n fg_alpha=0.8,\n x=290, y=345,\n radius={radius},\n thickness={thickness},\n start_angle=180,\n end_angle=420\n}},\n".format(**data)
+        data = { 
+            'name': speed,
+            'arg': interface[0],
+            'bg_alpha': alpha,
+            'radius': radius,
+            'thickness': thickness
+            } 
+
+        new_block = """\n    {{
+        name='{name}',
+        arg='{arg}',
+        max=125000,
+        bg_colour=0x3b3b3b,
+        bg_alpha={bg_alpha},
+        fg_colour=0x34cdff,
+        fg_alpha=0.8,
+        x=290, y=345,
+        radius={radius},
+        thickness={thickness},
+        start_angle=180,
+        end_angle=420
+    }},""".format(**data)
 
         netconf_lua.append(new_block)
         alpha -= alpha_scale
@@ -484,7 +528,6 @@ if __name__ == "__main__":
     print('Locally mounted filesystem kept: {0}'.format(disks))
 
 
-
     # init file
     ccolor0, ccolor1, lcolor0 = init(sys.argv[1:])
     write_conf_blank(src_lua, dest_lua)
@@ -501,15 +544,6 @@ if __name__ == "__main__":
     write_netconf_conky(interface)
 
     write_batconf()
-
     write_color_lua()
     
-#    with open('./conky/rings-v2_tpl', 'r') as f:
-#        filedata = f.read()
-#    
-#    with open('./conky/rings-v2_gen.lua', 'w') as f:
-#        f.write(filedata)
-
-
-
 
