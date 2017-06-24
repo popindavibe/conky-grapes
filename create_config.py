@@ -189,14 +189,12 @@ def write_batconf():
         try:
             open('/sys/class/power_supply/BAT{}/uevent'.format(i))
             BAT = i
-
         except IOError:
             print("Could not check battery via /sys/class/power_suplly")
 
         try:
             open('/proc/acpi/battery/BAT{}/state'.format(i))
             BAT = i
-
         except IOError:
             print("Could not check battery via acpi")
     
