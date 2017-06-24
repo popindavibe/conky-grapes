@@ -9,6 +9,7 @@ import re
 from collections import OrderedDict
 import sys
 from os.path import expanduser
+import logging as log
 
 home = expanduser("~")
 working_dir = home+'/conky/conky-grappes/'
@@ -61,7 +62,7 @@ def read_conf(filename):
         with open(filename, 'r') as f:
             filedata = f.read();
     except IOError:
-        print("[Error] Could not open {}".format(filename))
+        log.error("[Error] Could not open {}".format(filename))
         return 1
     return filedata
 
@@ -72,7 +73,7 @@ def write_conf(filedata, dest):
         with open(dest, 'w') as f:
             f.write(filedata);
     except IOError:
-        print("[Error] Could not open {}".format(dest))
+        log.error("[Error] Could not open {}".format(dest))
         return 1
 
 def write_color_lua():
@@ -83,10 +84,10 @@ def write_color_lua():
     write_conf(filedata, dest_lua)
 
 def write_conf_blank(src, dest):
-    """ Reload new config file template
+    """ Reload new config file from template
     """
     filedata = read_conf(src)
-    print('Overwriting config template file')
+    log.info('Overwriting config file {}'.format(dest))
     filedata = filedata.replace('--{{ COLOR0 }}', "    color0 = '{}',".format(ctitle))
     filedata = filedata.replace('--{{ COLOR1 }}', "    color1 = '{}',".format(ctext))
     write_conf(filedata, dest)
@@ -113,7 +114,8 @@ def route_interface():
             routeinfo = line.split('\t')
             if routeinfo[1] == "00000000":
                 gwinterface = routeinfo[0]
-    print('Gateway interface: {0}'.format(gwinterface))
+    
+    log.info('Gateway interface: {0}'.format(gwinterface))
 
     """ Check if the gateway interface is wifi
         as we'll need to know about that for config
@@ -123,7 +125,7 @@ def route_interface():
         for line in f:
             wifi = line.split(':')
             if len(wifi) > 1:
-                print('wifi interface: {0}'.format(wifi[0].strip()))
+                log.info('wifi interface: {0}'.format(wifi[0].strip()))
                 if wifi[0].strip() == gwinterface:
                     iswifi = True
     return [gwinterface, iswifi]
@@ -143,7 +145,7 @@ def disk_select():
 
     if len(disks) > 3:
         diskKeep = disks[:3]
-        print('Keeping 3 first locally mounted filesystem identified: {0}'
+        log.info('Keeping 3 first locally mounted filesystem identified: {0}'
             .format(diskKeep))
     else:
         diskKeep = disks
@@ -163,20 +165,22 @@ def write_batconf():
     """ Prepare lua config for BATTERY if detected
     """
     BAT = None
+    log.info('Looking for battery info')
     for i in range(2):
         try:
             open('/sys/class/power_supply/BAT{}/uevent'.format(i))
             BAT = i
         except IOError:
-            print("Could not check battery via /sys/class/power_suplly")
+            log.warning("Could not check battery {} via /sys/class/power_suplly".format(i))
 
         try:
             open('/proc/acpi/battery/BAT{}/state'.format(i))
             BAT = i
         except IOError:
-            print("Could not check battery via acpi")
+            log.warning("Could not check battery {} via acpi".format(i))
 
     if BAT is not None:
+        print('Found battery info!')
         batconf_lua = []
         batconf_conky = []
         alpha = 0.6
@@ -189,7 +193,7 @@ def write_batconf():
             'thickness': thickness
             }
 
-        print('Writing lua BATTERY config in template file')
+        log.info('Writing lua BATTERY config in config file')
         new_block = """    {{
         name='battery_percent',
         arg='{arg}', max=100,
@@ -210,7 +214,7 @@ def write_batconf():
         filedata = filedata.replace('--{{ BATTERY_WATCH }}', 'battery=tonumber(conky_parse("${{battery_percent {arg} }}"))'.format(**data))
         write_conf(filedata, dest_lua)
 
-        print('Writing conky BATTERY config in template file')
+        print('Writing conky BATTERY config in config file')
         new_block = "${{font}}${{color0}}${{goto 280}}${{voffset 1}}${{color1}}${{battery_percent {arg}}}%".format(**data)
         batconf_conky.append(new_block)
         filedata = read_conf(dest_conky)
@@ -229,7 +233,7 @@ def write_fsconf_lua(disk, cpunb):
     thickness = 10
     # for disk monitoring in disk_watch
     index_start = cpunb + 4
-    print('index_start is {}'.format(index_start))
+    log.info('index_start is {}'.format(index_start))
 
     for cpt in range (len(disk)):
         data = {
@@ -266,12 +270,12 @@ def write_fsconf_lua(disk, cpunb):
         radius -= (thickness +1)
         thickness -= 1
 
-    print('Writing FILESYSTEM LUA config in template file')
+    print('Writing FILESYSTEM LUA config in config file')
     filedata = read_conf(dest_lua)
     filedata = filedata.replace('--{{ FILESYSTEM }}', ''.join(fsconf_lua))
     write_conf(filedata, dest_lua)
 
-    print('Writing DISK_WATCH lua config in template file')
+    print('Writing DISK_WATCH lua config in config file')
     filedata = read_conf(dest_lua)
     filedata = filedata.replace('--{{ DISK_WATCH }}', ''.join(fsconf_watch))
     write_conf(filedata, dest_lua)
@@ -295,12 +299,12 @@ def write_fsconf_conky(fs):
         new_block = "${{goto 70}}${{voffset {voffset}}}{filesys}${{color1}}${{alignr 310}}${{fs_used {filesys}}} / ${{fs_size {filesys}}}\n".format(**data)
         conf.append(new_block)
 
-    print('adjusting voffset for FS...')
+    log.info('adjusting voffset for FS...')
     adjust = 12 + ((fs_max - len(fs)) *10)
     new_block = "${{font Michroma:size=10}}${{color0}}${{goto 68}}${{voffset {0}}}FILESYSTEM".format(adjust)
     conf.append(new_block)
 
-    print('Writing FS conky config in template file')
+    print('Writing FS conky config in config file')
     filedata = read_conf(dest_conky)
     filedata = filedata.replace('#{{ FILESYSTEM }}', ''.join(conf))
     write_conf(filedata, dest_conky)
@@ -315,10 +319,10 @@ def write_cpuconf_lua(cpunb):
     alpha = 0.7
     # we will spread alpha over 0.4 gradient
     alpha_scale = 0.4 / cpunb
-    print('We have {} CPUs'.format(cpunb))
+    log.info('We have {} CPUs'.format(cpunb))
     if cpunb >= max_cpu_display:
         cpunb = max_cpu_display
-    print('We keep {} CPUs'.format(cpunb))
+    log.info('We keep {} CPUs'.format(cpunb))
 
     if cpunb > 4:
         thickness_max -= (cpunb - 3)
@@ -353,7 +357,7 @@ def write_cpuconf_lua(cpunb):
         radius -= (thickness +1)
         thickness -= 0.5
 
-    print('Writing CPU LUA config in template file')
+    print('Writing CPU LUA config in config file')
     filedata = read_conf(dest_lua)
     filedata = filedata.replace('--{{ CPU }}', ''.join(cpuconf_lua))
     write_conf(filedata, dest_lua)
@@ -372,10 +376,10 @@ def write_cpuconf_conky(cpunb):
         else:
             voffset = 1.5
 
-    print('We have {} CPUs'.format(cpunb))
+    log.info('We have {} CPUs'.format(cpunb))
     if cpunb >= max_cpu_display:
         cpunb = max_cpu_display
-    print('We keep {} CPUs'.format(cpunb))
+    log.info('We keep {} CPUs'.format(cpunb))
 
     if cpunb > 4:
         voffset -= 1
@@ -386,12 +390,12 @@ def write_cpuconf_conky(cpunb):
         new_block = "${{voffset {voffset}}}${{goto 120}}${{color1}}CPU {cpu}${{alignr 330}}${{color1}}${{cpu cpu{cpu}}}%\n".format(**data)
         cpuconf.append(new_block)
 
-    print('adjusting voffset for top cpu processes...')
+    log.info('adjusting voffset for top cpu processes...')
     adjust = 34 - (voffset * cpunb)
     new_block = "${{goto 50}}${{voffset {0}}}${{color1}}${{top name 1}}${{alignr 306}}${{top cpu 1}}%".format(adjust)
     cpuconf.append(new_block)
 
-    print('Writing CPU conky config in template file')
+    print('Writing CPU conky config in config file')
     filedata = read_conf(dest_conky)
     filedata = filedata.replace('#{{ CPU }}', ''.join(cpuconf))
     write_conf(filedata, dest_conky)
@@ -435,7 +439,7 @@ def write_netconf_lua(interface):
         radius -= (thickness +1)
         thickness -= 1
 
-    print('Writing NETWORK LUA config in template file')
+    print('Writing NETWORK LUA config in config file')
     filedata = read_conf(dest_lua)
     filedata = filedata.replace('--{{ NETWORK }}', ''.join(netconf_lua))
     write_conf(filedata, dest_lua)
@@ -445,13 +449,13 @@ def write_netconf_conky(interface):
     """
     netconf = []
     if interface[0] == "no_gateway_interface":
-        print('No default route on the system! Tachikoma, what is happening?!')
+        log.warning('No default route on the system! Tachikoma, what is happening?!')
 
         with open(working_dir+'nonetconf') as f:
             for line in f:
                 netconf.append(line)
         #print('netconf: {0}'.format(netconf))
-        print('Writing NETWORK conky config in template file')
+        print('Writing NETWORK conky config in config file')
         filedata = read_conf(dest_conky)
         filedata = filedata.replace('#{{ NETWORK }}', ''.join(netconf))
         write_conf(filedata, dest_conky)
@@ -462,7 +466,7 @@ def write_netconf_conky(interface):
             for line in f:
                 netconf.append(re.sub(r'INTERFACE', interface[0], line))
         #print('netconf: {0}'.format(netconf))
-        print('Writing NETWORK conky config in template file')
+        print('Writing NETWORK conky config in config file')
         filedata = read_conf(dest_conky)
         filedata = filedata.replace('#{{ NETWORK }}', ''.join(netconf))
         write_conf(filedata, dest_conky)
@@ -472,7 +476,7 @@ def write_netconf_conky(interface):
             for line in f:
                 netconf.append(re.sub(r'INTERFACE', interface[0], line))
         #print('netconf: {0}'.format(netconf))
-        print('Writing NETWORK conky config in template file')
+        print('Writing NETWORK conky config in config file')
         filedata = read_conf(dest_conky)
         filedata = filedata.replace('#{{ NETWORK }}', ''.join(netconf))
         write_conf(filedata, dest_conky)
@@ -481,33 +485,50 @@ def write_netconf_conky(interface):
 # main
 if __name__ == "__main__":
 #    print ("called directly")
+    print ("Digging in the system to gather info...\n")
 
     parser = argparse.ArgumentParser(description='Creates/overwrites conky and lua configuration for conky-grappes adjustments to your system.')
-    parser.add_argument('-r', '--color_rings', dest='rings', metavar='COLOR_RINGS', default='blue', choices=couleurs,
-                        help='the textual color for the rings and titles, among: {0}'.format(' '.join(couleurs.keys())))
-    parser.add_argument('-ti', '--color_title', dest='title', metavar='COLOR_TITLE', default='blue', choices=couleurs,
-                        help='the textual color for the title display, see COLOR_RINGS for accepted values.')
-    parser.add_argument('-te', '--color_text', dest='text', metavar='COLOR_TEXT', default='grey', choices=couleurs,
-                        help='the textual color for the text display, see COLOR_RINGS for accepted values.')
+    parser.add_argument('-ri', '--color_rings', dest='rings', metavar='COLOR_RINGS',
+                        default='blue', choices=couleurs,
+                        help='the textual color for the rings and titles, among: {0}'
+                        .format(' '.join(couleurs.keys()))
+                        )
+    parser.add_argument('-ti', '--color_title', dest='title', metavar='COLOR_TITLE',
+                        default='blue', choices=couleurs,
+                        help='the textual color for the title display, see COLOR_RINGS \
+                            for accepted values.'''
+                        )
+    parser.add_argument('-te', '--color_text', dest='text', metavar='COLOR_TEXT',
+                        default='grey', choices=couleurs,
+                        help='the textual color for the text display, see COLOR_RINGS \
+                            for accepted values.'
+                       )
+    parser.add_argument('-v', '--verbose', dest='verbose', action="store_true",
+                        help='verbose mode, displays gathered info as we found it.'
+                       )
 
     args = parser.parse_args()
-    print('Arguments received: {}'.format(args))
+    # Log Level
+    if args.verbose:
+        log.basicConfig(format="%(levelname)s: %(message)s", level=log.DEBUG)
+        log.info("Verbose output.")
+    else:
+        log.basicConfig(format="%(levelname)s: %(message)s")
+
+    log.info('Arguments received: {}'.format(args))
 
     # init file
     crings, ctitle, ctext = init(args.rings, args.title, args.text)
-    print('colors: {} {} {}'.format(crings, ctitle, ctext))
-
     write_conf_blank(src_lua, dest_lua)
     write_conf_blank(src_conky, dest_conky)
 
     cpunb = cpu_number()
-    print('Number of CPU(s): {0}'.format(cpunb))
+    log.info('Number of CPU(s): {0}'.format(cpunb))
     meminfo = meminfo()
-    print('Total memory: {0}'.format(meminfo['MemTotal']))
-    print('Free memory: {0}'.format(meminfo['MemFree']))
+    log.info('Total memory: {0}'.format(meminfo['MemTotal']))
+    log.info('Free memory: {0}'.format(meminfo['MemFree']))
     interface = route_interface()
     disks = disk_select()
-
 
     # LUA
     write_cpuconf_lua(cpunb)
@@ -521,4 +542,10 @@ if __name__ == "__main__":
     write_batconf()
     write_color_lua()
 
+    print ("""\nSuccess!\nNew config files have been created:\n- {}\n- {} \n\nIf you \
+add a preivous conky-grappes running, the update should be instantaneous. \
+If conky-grappes is not running, you can activate it with following command:\n 
+conky -q -d -c ~/conky/conky-grappes/conky_gen.conkyrc\n"""
+         .format(dest_conky, dest_lua)
+         )
 
