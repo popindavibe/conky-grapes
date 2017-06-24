@@ -13,11 +13,11 @@ To tune up your desktop of course! And because you can, as it is under GPLv3 Lic
 
 ## How to use it
 * If you already know your way around, all you need is:
-- install conky-full
-- clone this repo to ~/conky/conky-grapes
-- install the fonts
-- use `create_config.py` to generate your configuration
-- enjoy color combinations and spending a fairly big amount of time looking at those magic rings
+  - install conky-full
+  - clone this repo to ~/conky/conky-grapes
+  - install the fonts
+  - use `create_config.py` to generate your configuration
+  - enjoy color combinations and spending a fairly big amount of time looking at those magic rings
 
 ```
  -----------------------------
