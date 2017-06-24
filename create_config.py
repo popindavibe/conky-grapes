@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
+import argparse
 import time
 import platform
 import re
@@ -18,50 +19,36 @@ dest_conky = './conky_gen.conkyrc'
 ## blue     | 34cdff
 ## white    | efefef
 
+# for LUA config, this should not be changed.
 default_fg_color = '0x34cdff'
 
-couleurs = { 
-        'yellow': 'fffd1d', 
-        'orange': 'ff8523', 
-        'red': 'ff1d2b', 
-        'green': '1dff22', 
-        'pink': 'd70751', 
-        'skyblue': '008cff', 
-        'brown': 'd7bd4c', 
-        'blue': '34cdff', 
-        'white': 'efefef', 
-        'grey': '323232', 
-        'violet': 'bb07d7', 
-        'asse': '006a32' 
+couleurs = {
+        'yellow': 'fffd1d',
+        'orange': 'ff8523',
+        'red': 'ff1d2b',
+        'green': '1dff22',
+        'pink': 'd70751',
+        'skyblue': '008cff',
+        'brown': 'd7bd4c',
+        'blue': '34cdff',
+        'white': 'efefef',
+        'grey': '323232',
+        'black': '000000',
+        'violet': 'bb07d7',
+        'ASSE': '006a32'
         }
 #cpunb = 8  # For testing only
 
 
-def init(args):
+def init(rings, title, text):
     """Initialisation of colors
     """
-    if len(args) > 0:
-        print('args is {}'.format(args))
-        try:
-            color0 = couleurs[args[0]]
-            color1 = couleurs[args[1]]
-        except KeyError:
-            print("[Error] Colors metioned are not available, switching to default")
-            color0 = '34cdff'
-            color1 = 'efefef'
-    else:
-        color0 = '34cdff'
-        color1 = 'efefef'
-
-    print('Chosen main color is : {}'.format(color0))
-    print('Chosen text color is : {}'.format(color1))
-    # for conky
-    ccolor0 = '#'+color0
-    ccolor1 = '#'+color1
     # for lua
-    lcolor0 = '0x'+color0
-
-    return ccolor0, ccolor1, lcolor0
+    crings = '0x'+couleurs[rings]
+    # for conky
+    ctitle = '#'+couleurs[title]
+    ctext = '#'+couleurs[text]
+    return crings, ctitle, ctext
 
 def read_conf(filename):
     """ Read file in variable and returns it
@@ -88,20 +75,20 @@ def write_color_lua():
     """ Last function called
     """
     datain = read_conf(dest_lua)
-    filedata = datain.replace(default_fg_color, lcolor0)
+    filedata = datain.replace(default_fg_color, crings)
     write_conf(filedata, dest_lua)
 
 def write_conf_blank(src, dest):
     """ Reload new config file template
     """
-    filedata = read_conf(src) 
+    filedata = read_conf(src)
     print('Overwriting config template file')
-    filedata = filedata.replace('--{{ COLOR0 }}', "    color0 = '{}',".format(ccolor0))
-    filedata = filedata.replace('--{{ COLOR1 }}', "    color1 = '{}',".format(ccolor1))
+    filedata = filedata.replace('--{{ COLOR0 }}', "    color0 = '{}',".format(ctitle))
+    filedata = filedata.replace('--{{ COLOR1 }}', "    color1 = '{}',".format(ctext))
     write_conf(filedata, dest)
 
 def cpu_number():
-    """ Looks for number of CPU threads 
+    """ Looks for number of CPU threads
     """
     with open('/proc/cpuinfo') as f:
         nbcpu = 0
@@ -115,7 +102,7 @@ def cpu_number():
 
 def route_interface():
     """ Returns the network interface used for routing
-    """ 
+    """
     gwinterface = "no_gateway_interface"
     with open('/proc/net/route') as f:
         for line in f:
@@ -159,7 +146,7 @@ def disk_select():
     return diskKeep
 
 def meminfo():
-    """ Return the information in /proc/meminfo as a dictionary 
+    """ Return the information in /proc/meminfo as a dictionary
     """
     meminfo=OrderedDict()
 
@@ -184,22 +171,22 @@ def write_batconf():
             BAT = i
         except IOError:
             print("Could not check battery via acpi")
-    
+
     if BAT is not None:
         batconf_lua = []
         batconf_conky = []
         alpha = 0.6
         radius = 18
         thickness = 10
-        data = { 
+        data = {
             'arg': 'BAT{}'.format(BAT),
             'bg_alpha': alpha,
             'radius': radius,
             'thickness': thickness
-            } 
+            }
 
         print('Writing lua BATTERY config in template file')
-        new_block = """    {{ 
+        new_block = """    {{
         name='battery_percent',
         arg='{arg}', max=100,
         bg_colour=0x3b3b3b,
@@ -240,13 +227,13 @@ def write_fsconf_lua(disk, cpunb):
     index_start = cpunb + 4
     print('index_start is {}'.format(index_start))
 
-    for cpt in range (len(disk)): 
-        data = { 
-                'arg': disk[cpt], 
-                'bg_alpha': alpha, 
-                'radius': radius, 
+    for cpt in range (len(disk)):
+        data = {
+                'arg': disk[cpt],
+                'bg_alpha': alpha,
+                'radius': radius,
                 'thickness': thickness
-                } 
+                }
 
         new_block = """\n    {{
         name='fs_used_perc',
@@ -292,14 +279,14 @@ def write_fsconf_conky(fs):
     voffset = -65
     fs_max = 3
 
-    for cpt in range (len(fs)): 
+    for cpt in range (len(fs)):
         if cpt > 0:
-            voffset = 0 
-        data = { 
-                'voffset': voffset, 
+            voffset = 0
+        data = {
+                'voffset': voffset,
                 'filesys': "{}"
                 .format(fs[cpt])
-                } 
+                }
 
         new_block = "${{goto 70}}${{voffset {voffset}}}{filesys}${{color1}}${{alignr 310}}${{fs_used {filesys}}} / ${{fs_size {filesys}}}\n".format(**data)
         conf.append(new_block)
@@ -323,7 +310,7 @@ def write_cpuconf_lua(cpunb):
     thickness_max = 13
     alpha = 0.7
     # we will spread alpha over 0.4 gradient
-    alpha_scale = 0.4 / cpunb 
+    alpha_scale = 0.4 / cpunb
     print('We have {} CPUs'.format(cpunb))
     if cpunb >= max_cpu_display:
         cpunb = max_cpu_display
@@ -332,17 +319,17 @@ def write_cpuconf_lua(cpunb):
     if cpunb > 4:
         thickness_max -= (cpunb - 3)
         radius = 88
-    thickness = thickness_max 
+    thickness = thickness_max
 
-    for cpt in range (cpunb): 
-        data = { 
+    for cpt in range (cpunb):
+        data = {
             'arg': "cpu{}".format(cpt+1),
             'bg_alpha': alpha,
             'radius': radius,
             'thickness': thickness
-            } 
+            }
 
-        new_block = """\n    {{    
+        new_block = """\n    {{
         name='cpu',
         arg='{arg}',
         max=100,
@@ -360,7 +347,7 @@ def write_cpuconf_lua(cpunb):
         cpuconf_lua.append(new_block)
         alpha -= alpha_scale
         radius -= (thickness +1)
-        thickness -= 0.5 
+        thickness -= 0.5
 
     print('Writing CPU LUA config in template file')
     filedata = read_conf(dest_lua)
@@ -389,8 +376,8 @@ def write_cpuconf_conky(cpunb):
     if cpunb > 4:
         voffset -= 1
 
-    for cpt in range (cpunb): 
-        data = { 'voffset': voffset, 'cpu': "{}".format(cpt+1)} 
+    for cpt in range (cpunb):
+        data = { 'voffset': voffset, 'cpu': "{}".format(cpt+1)}
 
         new_block = "${{voffset {voffset}}}${{goto 120}}${{color1}}CPU {cpu}${{alignr 330}}${{color1}}${{cpu cpu{cpu}}}%\n".format(**data)
         cpuconf.append(new_block)
@@ -416,13 +403,13 @@ def write_netconf_lua(interface):
     thickness = 12
 
     for speed in  ['downspeedf', 'upspeedf']:
-        data = { 
+        data = {
             'name': speed,
             'arg': interface[0],
             'bg_alpha': alpha,
             'radius': radius,
             'thickness': thickness
-            } 
+            }
 
         new_block = """\n    {{
         name='{name}',
@@ -455,7 +442,7 @@ def write_netconf_conky(interface):
     netconf = []
     if interface[0] == "no_gateway_interface":
         print('No default route on the system! Tachikoma, what is happening?!')
-        
+
         with open('./nonetconf') as f:
             for line in f:
                 netconf.append(line)
@@ -491,6 +478,24 @@ def write_netconf_conky(interface):
 if __name__ == "__main__":
 #    print ("called directly")
 
+    parser = argparse.ArgumentParser(description='Creates/overwrites conky and lua configuration for conky-grappes adjustments to your system.')
+    parser.add_argument('-r', '--color_rings', dest='rings', metavar='COLOR_RINGS', default='blue', choices=couleurs,
+                        help='the textual color for the rings and titles, among: {0}'.format(' '.join(couleurs.keys())))
+    parser.add_argument('-ti', '--color_title', dest='title', metavar='COLOR_TITLE', default='blue', choices=couleurs,
+                        help='the textual color for the title display, see COLOR_RINGS for accepted values.')
+    parser.add_argument('-te', '--color_text', dest='text', metavar='COLOR_TEXT', default='grey', choices=couleurs,
+                        help='the textual color for the text display, see COLOR_RINGS for accepted values.')
+
+    args = parser.parse_args()
+    print('Arguments received: {}'.format(args))
+
+    # init file
+    crings, ctitle, ctext = init(args.rings, args.title, args.text)
+    print('colors: {} {} {}'.format(crings, ctitle, ctext))
+
+    write_conf_blank(src_lua, dest_lua)
+    write_conf_blank(src_conky, dest_conky)
+
     cpunb = cpu_number()
     print('Number of CPU(s): {0}'.format(cpunb))
     meminfo = meminfo()
@@ -499,21 +504,17 @@ if __name__ == "__main__":
     interface = route_interface()
     disks = disk_select()
 
-    # init file
-    ccolor0, ccolor1, lcolor0 = init(sys.argv[1:])
-    write_conf_blank(src_lua, dest_lua)
-    write_conf_blank(src_conky, dest_conky)
 
     # LUA
     write_cpuconf_lua(cpunb)
     write_fsconf_lua(disks,cpunb)
     write_netconf_lua(interface)
-    
+
     write_cpuconf_conky(cpunb)
     write_fsconf_conky(disks)
     write_netconf_conky(interface)
 
     write_batconf()
     write_color_lua()
-    
+
 
