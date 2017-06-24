@@ -1,6 +1,6 @@
 # conky-grapes
 
-The Github repository is only a mirror for visibility purppose. I use GitLab for my own projects. Please reach out for me [there](https://gitlab.nomagic.fr/popi/conky-grapes) if you need to interact (you can sign in with your Github account).
+The Github repository is only a manually poorly maintained mirror, only for visibility purppose. I use GitLab CE for my own projects (which has no mirroring feature on Community Edition). Please reach out for me [there](https://gitlab.nomagic.fr/popi/conky-grapes) if you need to interact (you can sign in with your Github account).
 
  
 ## What is it
