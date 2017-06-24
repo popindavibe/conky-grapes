@@ -12,7 +12,7 @@ from os.path import expanduser
 import logging as log
 
 home = expanduser("~")
-working_dir = home+'/conky/conky-grappes/'
+working_dir = home+'/conky/conky-grapes/'
 
 src_lua = working_dir+'rings-v2_tpl'
 dest_lua = working_dir+'rings-v2_gen.lua'
@@ -487,7 +487,7 @@ if __name__ == "__main__":
 #    print ("called directly")
     print ("Digging in the system to gather info...\n")
 
-    parser = argparse.ArgumentParser(description='Creates/overwrites conky and lua configuration for conky-grappes adjustments to your system.')
+    parser = argparse.ArgumentParser(description='Creates/overwrites conky and lua configuration for conky-grapes adjustments to your system.')
     parser.add_argument('-ri', '--color_rings', dest='rings', metavar='COLOR_RINGS',
                         default='blue', choices=couleurs,
                         help='the textual color for the rings and titles, among: {0}'
@@ -543,9 +543,9 @@ if __name__ == "__main__":
     write_color_lua()
 
     print ("""\nSuccess!\nNew config files have been created:\n- {}\n- {} \n\nIf you \
-add a preivous conky-grappes running, the update should be instantaneous. \
-If conky-grappes is not running, you can activate it with following command:\n 
-conky -q -d -c ~/conky/conky-grappes/conky_gen.conkyrc\n"""
+add a preivous conky-grapes running, the update should be instantaneous. \
+If conky-grapes is not running, you can activate it with following command:\n 
+conky -q -d -c ~/conky/conky-grapes/conky_gen.conkyrc\n"""
          .format(dest_conky, dest_lua)
          )
 
