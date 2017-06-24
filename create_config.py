@@ -8,12 +8,15 @@ import platform
 import re
 from collections import OrderedDict
 import sys
+from os.path import expanduser
 
-src_lua = './rings-v2_tpl'
-dest_lua = './rings-v2_gen.lua'
+home = expanduser("~")
+working_dir = home+'/conky/conky-grappes/'
 
-src_conky = './conky_tpl'
-dest_conky = './conky_gen.conkyrc'
+src_lua = working_dir+'rings-v2_tpl'
+dest_lua = working_dir+'rings-v2_gen.lua'
+src_conky = working_dir+'conky_tpl'
+dest_conky = working_dir+'conky_gen.conkyrc'
 
 # Defaults is blue metrics and white font
 ## blue     | 34cdff
@@ -28,9 +31,10 @@ couleurs = {
         'red': 'ff1d2b',
         'green': '1dff22',
         'pink': 'd70751',
-        'skyblue': '008cff',
+        'skyblue': '8fd3ff',
         'brown': 'd7bd4c',
-        'blue': '34cdff',
+        'blue': '165cc4',
+        'iceblue': '43d2e5',
         'white': 'efefef',
         'grey': '323232',
         'black': '000000',
@@ -253,7 +257,7 @@ def write_fsconf_lua(disk, cpunb):
         fsconf_lua.append(new_block)
         # for DISK_WATCH section
         index = index_start + cpt
-        with open('./fs_watch') as f:
+        with open(working_dir+'fs_watch') as f:
             for line in f:
                 test = re.sub(r'FILESYS', data['arg'], line)
                 fsconf_watch.append(re.sub(r'INDEX', format(index), test))
@@ -443,7 +447,7 @@ def write_netconf_conky(interface):
     if interface[0] == "no_gateway_interface":
         print('No default route on the system! Tachikoma, what is happening?!')
 
-        with open('./nonetconf') as f:
+        with open(working_dir+'nonetconf') as f:
             for line in f:
                 netconf.append(line)
         #print('netconf: {0}'.format(netconf))
@@ -454,7 +458,7 @@ def write_netconf_conky(interface):
 
     elif interface[1] is True:
         print('Setting up Wifi as main interface')
-        with open('./wificonf') as f:
+        with open(working_dir+'wificonf') as f:
             for line in f:
                 netconf.append(re.sub(r'INTERFACE', interface[0], line))
         #print('netconf: {0}'.format(netconf))
@@ -464,7 +468,7 @@ def write_netconf_conky(interface):
         write_conf(filedata, dest_conky)
     else:
         print('Setting up NIC as main interface')
-        with open('./ethconf') as f:
+        with open(working_dir+'ethconf') as f:
             for line in f:
                 netconf.append(re.sub(r'INTERFACE', interface[0], line))
         #print('netconf: {0}'.format(netconf))
