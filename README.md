@@ -8,6 +8,7 @@ This repository aims at providing you everything you need to be able to **very q
 and battery when relevant.
 * A set of pre-defined colours that allows to easily adapt your settings to different backgrounds (colors can be added/ changed in the python file fairly easily).
 * Possibility to select different colors for the rings, the section titles, and the text.
+
 _note: the limits on cpu and filesystems are for display reason._
 
 ![](https://gitlab.nomagic.fr/popi/conky-grapes/raw/19e5a71edd012d76d1994162ec958af2f53e987d/sample1.jpeg)
