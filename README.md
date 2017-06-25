@@ -1,11 +1,16 @@
 # conky-grapes
 
 **The Github repository is only a manually poorly maintained mirror, only for visibility purppose.** I use GitLab CE for my own projects (which has no mirroring feature on Community Edition). Please reach out for me [there](https://gitlab.nomagic.fr/popi/conky-grapes) if you need to interact (you can sign in with your Github account).
-
  
 ## What is it
-This repository aims at providing you everything you need to be able to very quickly build a beautiful grapefruit-shaped lua/ conky adapted to your machine. A set of pre-defined colours allow to easily adapt your settings to different backgrounds.
+This repository aims at providing you everything you need to be able to **very quickly** build a fantastic grape-shaped lua/ conky adapted to your machine including:
+* Metrics on temperature, cpu (maximum fixed to 8 cpu to display), disks (maximum 3 filesystem), memory (ram and swap), networking (we select the interface used as default gateway),
+and battery when relevant.
+* A set of pre-defined colours that allows to easily adapt your settings to different backgrounds (colors can be added/ changed in the python file fairly easily).
+* Possibility to select different colors for the rings, the section titles, and the text.
+_note: the limits on cpu and filesystems are for display reason._
 
+![](https://gitlab.nomagic.fr/popi/conky-grapes/raw/19e5a71edd012d76d1994162ec958af2f53e987d/sample1.jpeg)
 
 ## Why use it
 To tune up your desktop of course! And because you can, as it is under GPLv3 License.
