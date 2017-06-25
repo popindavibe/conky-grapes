@@ -1,6 +1,23 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+#     This script creates configuration files for conky and lua based on
+#     your machines's current resources.
+#     Copyright (C) 2017  popi
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see ihttp://www.gnu.org/licenses/gpl.html.
+
 from __future__ import print_function
 import argparse
 import time
@@ -561,7 +578,15 @@ if __name__ == "__main__":
     print ("""\nSuccess!\nNew config files have been created:\n- {}\n- {} \n\nIf you \
 add a preivous conky-grapes running, the update should be instantaneous. \
 If conky-grapes is not running, you can activate it with following command:\n 
-conky -q -d -c ~/conky/conky-grapes/conky_gen.conkyrc\n"""
+conky -q -d -c ~/conky/conky-grapes/conky_gen.conkyrc\n\n 
+** If it runs but text is not aligned or font is horribly wrong (and you \
+installed required fonts), chances are you are using a \
+recent version of freetype2 (2.8 onwardsi, see \
+https://bbs.archlinux.org/viewtopic.php?id=226380), which breaks vertical \
+alignment with conky.\nIf you are on Archlinux, install AUR package \
+https://aur.archlinux.org/packages/freetype2-ttmetrics to fix the vertical \
+alignment (you might need to restart your session / machine for the change \
+to take effect. \nThen call that script again using the --arch option."""
          .format(dest_conky, dest_lua)
          )
 
