@@ -45,7 +45,7 @@ couleurs = {
 #cpunb = 8  # For testing only
 
 
-def init(rings, title, text):
+def init(rings, title, text, arch):
     """Initialisation of colors
     """
     # for lua
@@ -53,7 +53,12 @@ def init(rings, title, text):
     # for conky
     ctitle = '#'+couleurs[title]
     ctext = '#'+couleurs[text]
-    return crings, ctitle, ctext
+    if arch:
+        ctextsize = '7,5'
+    else:
+        ctextsize = '7.5'
+
+    return crings, ctitle, ctext, ctextsize, arch
 
 def read_conf(filename):
     """ Read file in variable and returns it
@@ -90,6 +95,8 @@ def write_conf_blank(src, dest):
     log.info('Overwriting config file {}'.format(dest))
     filedata = filedata.replace('--{{ COLOR0 }}', "    color0 = '{}',".format(ctitle))
     filedata = filedata.replace('--{{ COLOR1 }}', "    color1 = '{}',".format(ctext))
+    filedata = filedata.replace('--{{ FONTTEXT }}', "    font = 'Play:normal:size={}',".format(ctextsize))
+	
     write_conf(filedata, dest)
 
 def cpu_number():
@@ -215,7 +222,10 @@ def write_batconf():
         write_conf(filedata, dest_lua)
 
         print('Writing conky BATTERY config in config file')
-        new_block = "${{font}}${{color0}}${{goto 280}}${{voffset 1}}${{color1}}${{battery_percent {arg}}}%".format(**data)
+        if arch:
+            new_block = "${{font}}${{color0}}${{goto 280}}${{voffset -2}}${{color1}}${{battery_percent {arg}}}%".format(**data)
+        else:
+            new_block = "${{font}}${{color0}}${{goto 280}}${{voffset 1}}${{color1}}${{battery_percent {arg}}}%".format(**data)
         batconf_conky.append(new_block)
         filedata = read_conf(dest_conky)
         filedata = filedata.replace('#{{ BATTERY }}', ''.join(batconf_conky))
@@ -284,12 +294,15 @@ def write_fsconf_conky(fs):
     """ Prepare conky config for CPU
     """
     conf = []
-    voffset = -65
+    if arch:
+        voffset = -68
+    else:
+        voffset = -65
     fs_max = 3
 
     for cpt in range (len(fs)):
         if cpt > 0:
-            voffset = 0
+                 voffset = 0
         data = {
                 'voffset': voffset,
                 'filesys': "{}"
@@ -503,6 +516,9 @@ if __name__ == "__main__":
                         help='the textual color for the text display, see COLOR_RINGS \
                             for accepted values.'
                        )
+    parser.add_argument('--archlinux', '--arch', dest='arch', action="store_true",
+                        help='small adjustments for archlinux, most notable the font size decimal delimiter is changed from "." to ",". This is worth a try if you notice bad alignment of bad font display.'
+                       )
     parser.add_argument('-v', '--verbose', dest='verbose', action="store_true",
                         help='verbose mode, displays gathered info as we found it.'
                        )
@@ -518,7 +534,7 @@ if __name__ == "__main__":
     log.info('Arguments received: {}'.format(args))
 
     # init file
-    crings, ctitle, ctext = init(args.rings, args.title, args.text)
+    crings, ctitle, ctext, ctextsize, arch = init(args.rings, args.title, args.text, args.arch)
     write_conf_blank(src_lua, dest_lua)
     write_conf_blank(src_conky, dest_conky)
 

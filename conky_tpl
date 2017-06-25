@@ -54,7 +54,7 @@ conky.config = {
 -- Text settings #
 	use_xft = true,
 	override_utf8_locale = true,
-	font = 'Play:normal:size=7.5',
+--{{ FONTTEXT }}
 	xftalpha = 0.9,
 	uppercase = false,
 
