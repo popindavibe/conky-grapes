@@ -6,6 +6,7 @@
 This repository aims at providing you everything you need to be able to **very quickly** build a fantastic grape-shaped lua/ conky adapted to your machine including:
 * Metrics on temperature, cpu (maximum fixed to 8 cpu to display), disks (maximum 3 filesystem), memory (ram and swap), networking (we select the interface used as default gateway),
 and battery when relevant.
+* Visual monitoring for high temparature, low disk space and low battery charge (orange is warning, red is critical)
 * A set of pre-defined colours that allows to easily adapt your settings to different backgrounds (colors can be added/ changed in the python file fairly easily).
 * Possibility to select different colors for the rings, the section titles, and the text.
 
