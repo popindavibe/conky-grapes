@@ -11,7 +11,7 @@ and battery when relevant.
 
 _note: the limits on cpu and filesystems are for display reason._
 
-![](https://gitlab.nomagic.fr/popi/conky-grapes/raw/19e5a71edd012d76d1994162ec958af2f53e987d/sample1.jpeg)
+![](sample1.jpeg)
 
 ## Why use it
 To tune up your desktop of course! And because you can, as it is under GPLv3 License.
