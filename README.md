@@ -15,7 +15,7 @@ _note: the limits on cpu and filesystems are for display reason._
 ![](sample1.jpeg)
 
 ## Why use it
-To tune up your desktop of course! And because you can, as it is under GPLv3 License.
+To tune up your desktop of course! It is under [GPLv3 License](gpl-3.0.txt), so feel free to use, study, improve and share as you please.
 
 
 ## How to use it
