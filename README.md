@@ -23,7 +23,7 @@ To tune up your desktop of course! And because you can, as it is under GPLv3 Lic
   - clone this repo to ~/conky/conky-grapes
   - install the fonts
   - use `create_config.py` to generate your configuration
-  - enjoy color combinations and spending a fairly big amount of time looking at those magic rings
+  - enjoy color combinations and spend a fairly big amount of time looking at those magic rings
 
 ```
  -----------------------------
