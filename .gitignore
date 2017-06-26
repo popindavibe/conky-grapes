@@ -9,3 +9,5 @@ conky/rings-v2_tpl.lua.bak
 conky_gen.conkyrc
 cpuconf.lua
 rings-v2_gen.lua
+create_config_old.py
+old
