@@ -59,17 +59,31 @@ couleurs = {
         'violet': 'bb07d7',
         'ASSE': '006a32'
         }
-#cpunb = 8  # For testing only
 
-
-def init(rings, title, text, arch):
+def init(rings, title, text, arch, reload):
     """Initialisation of colors
     """
-    # for lua
-    crings = '0x'+couleurs[rings]
-    # for conky
-    ctitle = '#'+couleurs[title]
-    ctext = '#'+couleurs[text]
+    # Keeping previous colors?
+    if reload:
+        with open(dest_conky, 'r') as f:
+            filedata = f.read() 
+            matchconky = re.findall('^ +color[01] = \'#([0-9a-f]{6})', filedata, re.M)
+            print('colors were: {}'.format(matchconky))
+
+        with open(dest_lua, 'r') as f:
+            filedata = f.read() 
+            matchlua = re.findall('^normal="0x([0-9a-f]{6})"', filedata, re.M)
+            print('colors were: {}'.format(matchlua))
+            crings = '0x'+matchlua[0]
+            # for conky
+            ctitle = '#'+matchconky[0]
+            ctext = '#'+matchconky[1]
+    else:
+        # for lua
+        crings = '0x'+couleurs[rings]
+        # for conky
+        ctitle = '#'+couleurs[title]
+        ctext = '#'+couleurs[text]
     if arch:
         ctextsize = '7,5'
     else:
@@ -404,15 +418,19 @@ def write_cpuconf_conky(cpunb):
         if cpunb > 6:
             voffset = 0.5
         else:
-            voffset = 1.5
+            if arch:
+                voffset = 0
+            else:
+                voffset = 1.5
 
     log.info('We have {} CPUs'.format(cpunb))
+    log.info('voffest is set to {}'.format(voffset))
     if cpunb >= max_cpu_display:
         cpunb = max_cpu_display
     log.info('We keep {} CPUs'.format(cpunb))
 
-    if cpunb > 4:
-        voffset -= 1
+#    if cpunb > 4:
+#        voffset -= 1
 
     for cpt in range (cpunb):
         data = { 'voffset': voffset, 'cpu': "{}".format(cpt+1)}
@@ -421,7 +439,10 @@ def write_cpuconf_conky(cpunb):
         cpuconf.append(new_block)
 
     log.info('adjusting voffset for top cpu processes...')
-    adjust = 34 - (voffset * cpunb)
+    if arch:
+        adjust = 12 - (voffset * cpunb)
+    else:
+        adjust = 34 - (voffset * cpunb)
     new_block = "${{goto 50}}${{voffset {0}}}${{color1}}${{top name 1}}${{alignr 306}}${{top cpu 1}}%".format(adjust)
     cpuconf.append(new_block)
 
@@ -539,6 +560,9 @@ if __name__ == "__main__":
     parser.add_argument('-v', '--verbose', dest='verbose', action="store_true",
                         help='verbose mode, displays gathered info as we found it.'
                        )
+    parser.add_argument('-r', '--reload', dest='reload', action="store_true",
+                        help='Only refresh configuration resource-wise. Colors will stay the same as previously.'
+                       )
 
     args = parser.parse_args()
     # Log Level
@@ -551,11 +575,13 @@ if __name__ == "__main__":
     log.info('Arguments received: {}'.format(args))
 
     # init file
-    crings, ctitle, ctext, ctextsize, arch = init(args.rings, args.title, args.text, args.arch)
+    crings, ctitle, ctext, ctextsize, arch = init(args.rings, args.title, args.text, args.arch, args.reload)
     write_conf_blank(src_lua, dest_lua)
     write_conf_blank(src_conky, dest_conky)
 
-    cpunb = cpu_number()
+    #cpunb = cpu_number()
+    cpunb = 6  # For testing only
+
     log.info('Number of CPU(s): {0}'.format(cpunb))
     meminfo = meminfo()
     log.info('Total memory: {0}'.format(meminfo['MemTotal']))
