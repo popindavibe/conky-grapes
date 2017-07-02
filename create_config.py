@@ -439,7 +439,7 @@ def write_cpuconf_conky(cpunb):
         cpuconf.append(new_block)
 
     log.info('adjusting voffset for top cpu processes...')
-    if arch:
+    if cpunb > 4:
         adjust = 12 - (voffset * cpunb)
     else:
         adjust = 34 - (voffset * cpunb)
@@ -579,8 +579,8 @@ if __name__ == "__main__":
     write_conf_blank(src_lua, dest_lua)
     write_conf_blank(src_conky, dest_conky)
 
-    #cpunb = cpu_number()
-    cpunb = 6  # For testing only
+    cpunb = cpu_number()
+    #cpunb = 6  # For testing only
 
     log.info('Number of CPU(s): {0}'.format(cpunb))
     meminfo = meminfo()
