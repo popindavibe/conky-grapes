@@ -254,6 +254,7 @@ def write_batconf():
         filedata = read_conf(dest_lua)
         filedata = filedata.replace('--{{ BATTERY }}', ''.join(batconf_lua))
         filedata = filedata.replace('--{{ BATTERY_WATCH }}', 'index={}\n    battery=tonumber(conky_parse("${{battery_percent {arg} }}"))'.format(index,**data))
+        filedata = filedata.replace('--{{ BATTERY_ACTIVATE }}', 'battery_watch()')
         write_conf(filedata, dest_lua)
 
         print('Writing conky BATTERY config in config file')

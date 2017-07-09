@@ -291,7 +291,8 @@ function conky_main()
     temp_watch()
     disk_watch()
     --iface_watch()
-    battery_watch()
+	-- if a battery is found
+    --{{ BATTERY_ACTIVATE }}
     conky_ring_stats()
 -- quand fond nécessaire
 --    conky_draw_bg()
