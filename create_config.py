@@ -258,13 +258,22 @@ def write_batconf():
         write_conf(filedata, dest_lua)
 
         print('Writing conky BATTERY config in config file')
+        new_block = "${font Michroma:size=10}${color0}${goto 296}${voffset 22}BATTERY"
         if arch:
-            new_block = "${{font}}${{color0}}${{goto 280}}${{voffset -2}}${{color1}}${{battery_percent {arg}}}%".format(**data)
+            new_block += "\n${{font}}${{color0}}${{goto 280}}${{voffset -2}}${{color1}}${{battery_percent {arg}}}%".format(**data)
         else:
-            new_block = "${{font}}${{color0}}${{goto 280}}${{voffset 1}}${{color1}}${{battery_percent {arg}}}%".format(**data)
+            new_block += "\n${{font}}${{color0}}${{goto 280}}${{voffset 1}}${{color1}}${{battery_percent {arg}}}%".format(**data)
+
         batconf_conky.append(new_block)
         filedata = read_conf(dest_conky)
         filedata = filedata.replace('#{{ BATTERY }}', ''.join(batconf_conky))
+        filedata = filedata.replace('#{{ OS }}', "${font Michroma:bold:size=11}${color0}${voffset 50}${alignc}${execi 3600 awk -F '=' '/PRETTY_NAME/ { print $2 }' /etc/os-release | tr -d '\"'}")
+        write_conf(filedata, dest_conky)
+    else:
+        # adjusting if no battery
+        new_block = "${font Michroma:bold:size=11}${color0}${voffset 90}${alignc}${execi 3600 awk -F '=' '/PRETTY_NAME/ { print $2 }' /etc/os-release | tr -d '\"'}"
+        filedata = read_conf(dest_conky)
+        filedata = filedata.replace('#{{ OS }}', new_block)
         write_conf(filedata, dest_conky)
 
 def write_fsconf_lua(disk, cpunb):
