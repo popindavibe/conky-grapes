@@ -92,8 +92,7 @@ ${font Michroma:size=10}${color0}${voffset 26}${goto 324}INTERNET INFO
 ${font Michroma:size=10}${alignr 300}${voffset -40}${color0}${time %a} ${color0}${time %x}
 ${font Michroma:size=18}${alignr 318}${color1}${voffset -4}${time %H}:${time %M}
 ## BATTERY #####################
-${font Michroma:size=10}${color0}${goto 296}${voffset 22}BATTERY
 #{{ BATTERY }}
 ## OS
-${font Michroma:bold:size=11}${color0}${voffset 50}${alignc}${execi 3600 awk -F '=' '/PRETTY_NAME/ { print $2 }' /etc/os-release | tr -d '"'}
+#{{ OS }}
 ]];
