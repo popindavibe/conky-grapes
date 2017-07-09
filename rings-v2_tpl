@@ -245,11 +245,11 @@ function battery_watch()
     --{{ BATTERY_WATCH }}
 
     if battery>warn_value then
-        settings_table[15]['fg_colour']=normal
+        settings_table[index]['fg_colour']=normal
     elseif battery>crit_value then
-        settings_table[15]['fg_colour']=warn
+        settings_table[index]['fg_colour']=warn
     else
-        settings_table[15]['fg_colour']=crit
+        settings_table[index]['fg_colour']=crit
     end
 end
 

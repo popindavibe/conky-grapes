@@ -224,6 +224,10 @@ def write_batconf():
         alpha = 0.6
         radius = 18
         thickness = 10
+        log.info('- Calculating index for battery in lua watch_battery')
+        # 9 => lua starts at 0 | 2 for mem, 2 for network, 1 for temp, 3 for time
+        index = cpunb+len(disks)+9
+        log.info('  Battery index = {}'.format(index))
         data = {
             'arg': 'BAT{}'.format(BAT),
             'bg_alpha': alpha,
@@ -249,7 +253,7 @@ def write_batconf():
         batconf_lua.append(new_block)
         filedata = read_conf(dest_lua)
         filedata = filedata.replace('--{{ BATTERY }}', ''.join(batconf_lua))
-        filedata = filedata.replace('--{{ BATTERY_WATCH }}', 'battery=tonumber(conky_parse("${{battery_percent {arg} }}"))'.format(**data))
+        filedata = filedata.replace('--{{ BATTERY_WATCH }}', 'index={}\n    battery=tonumber(conky_parse("${{battery_percent {arg} }}"))'.format(index,**data))
         write_conf(filedata, dest_lua)
 
         print('Writing conky BATTERY config in config file')
