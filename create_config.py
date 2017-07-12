@@ -85,9 +85,9 @@ def init(rings, title, text, arch, reload):
         ctitle = '#'+couleurs[title]
         ctext = '#'+couleurs[text]
     if arch:
-        ctextsize = '7,5'
+        ctextsize = '8'
     else:
-        ctextsize = '7.5'
+        ctextsize = '8'
 
     return crings, ctitle, ctext, ctextsize, arch
 
@@ -342,12 +342,12 @@ def write_fsconf_conky(fs):
     if arch:
         voffset = -68
     else:
-        voffset = -65
+        voffset = -68
     fs_max = 3
 
     for cpt in range (len(fs)):
         if cpt > 0:
-                 voffset = 0
+                 voffset = -1
         data = {
                 'voffset': voffset,
                 'filesys': "{}"
@@ -424,18 +424,18 @@ def write_cpuconf_conky(cpunb):
     """ Prepare conky config for CPU
     """
     cpuconf = []
-    voffset = 3
+    voffset = 2
     max_cpu_display = 8
 
     # bring lines closer if many cpus
     if cpunb > 4:
         if cpunb > 6:
-            voffset = 0.5
+            voffset = -0.5
         else:
             if arch:
-                voffset = 0
+                voffset = -1
             else:
-                voffset = 1.5
+                voffset = 0.5
 
     log.info('We have {} CPUs'.format(cpunb))
     log.info('voffest is set to {}'.format(voffset))
@@ -456,7 +456,7 @@ def write_cpuconf_conky(cpunb):
     if cpunb > 4:
         adjust = 12 - (voffset * cpunb)
     else:
-        adjust = 34 - (voffset * cpunb)
+        adjust = 28 - (voffset * cpunb)
     new_block = "${{goto 50}}${{voffset {0}}}${{color1}}${{top name 1}}${{alignr 306}}${{top cpu 1}}%".format(adjust)
     cpuconf.append(new_block)
 
