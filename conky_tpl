@@ -81,7 +81,7 @@ ${font Michroma:size=10}${color0}${goto 394}${voffset 43}MEMORY
 ${font}${goto 324}${voffset -4}${color1}${top_mem name 1}${alignr 40}${top_mem mem 1}%
 ${goto 324}${color1}${top_mem name 2}${alignr 40}${top_mem mem 2}%
 ${goto 324}${color1}${top_mem name 3}${alignr 40}${top_mem mem 3}%
-${voffset 14}${goto 348}${color1}SWAP${alignr 40}${color1}${swap} / ${color1}${swapmax}
+${voffset 16}${goto 348}${color1}SWAP${alignr 40}${color1}${swap} / ${color1}${swapmax}
 ${voffset 3}${goto 348}${color1}RAM ${alignr 40}${color1}${mem} / ${color1}${memmax}
 ## FILESYSTEMS #################
 #{{ FILESYSTEM }}
