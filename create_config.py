@@ -340,7 +340,7 @@ def write_fsconf_conky(fs):
     """
     conf = []
     if arch:
-        voffset = -68
+        voffset = -70
     else:
         voffset = -68
     fs_max = 3
