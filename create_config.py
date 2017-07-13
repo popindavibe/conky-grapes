@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#     This script creates configuration files for conky and lua based on
-#     your machines's current resources.
-#     Copyright (C) 2017  popi
+#    This script creates configuration files for conky and lua based on
+#    your machines's current resources.
+#    Copyright (C) 2017  popi
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -59,21 +59,35 @@ couleurs = {
         'violet': 'bb07d7',
         'ASSE': '006a32'
         }
-#cpunb = 8  # For testing only
 
-
-def init(rings, title, text, arch):
+def init(rings, title, text, arch, reload):
     """Initialisation of colors
     """
-    # for lua
-    crings = '0x'+couleurs[rings]
-    # for conky
-    ctitle = '#'+couleurs[title]
-    ctext = '#'+couleurs[text]
-    if arch:
-        ctextsize = '7,5'
+    # Keeping previous colors?
+    if reload:
+        with open(dest_conky, 'r') as f:
+            filedata = f.read() 
+            matchconky = re.findall('^ +color[01] = \'#([0-9a-f]{6})', filedata, re.M)
+            print('colors were: {}'.format(matchconky))
+
+        with open(dest_lua, 'r') as f:
+            filedata = f.read() 
+            matchlua = re.findall('^normal="0x([0-9a-f]{6})"', filedata, re.M)
+            print('colors were: {}'.format(matchlua))
+            crings = '0x'+matchlua[0]
+            # for conky
+            ctitle = '#'+matchconky[0]
+            ctext = '#'+matchconky[1]
     else:
-        ctextsize = '7.5'
+        # for lua
+        crings = '0x'+couleurs[rings]
+        # for conky
+        ctitle = '#'+couleurs[title]
+        ctext = '#'+couleurs[text]
+    if arch:
+        ctextsize = '8'
+    else:
+        ctextsize = '8'
 
     return crings, ctitle, ctext, ctextsize, arch
 
@@ -210,6 +224,10 @@ def write_batconf():
         alpha = 0.6
         radius = 18
         thickness = 10
+        log.info('- Calculating index for battery in lua watch_battery')
+        # 9 => lua starts at 0 | 2 for mem, 2 for network, 1 for temp, 3 for time
+        index = cpunb+len(disks)+9
+        log.info('  Battery index = {}'.format(index))
         data = {
             'arg': 'BAT{}'.format(BAT),
             'bg_alpha': alpha,
@@ -235,17 +253,27 @@ def write_batconf():
         batconf_lua.append(new_block)
         filedata = read_conf(dest_lua)
         filedata = filedata.replace('--{{ BATTERY }}', ''.join(batconf_lua))
-        filedata = filedata.replace('--{{ BATTERY_WATCH }}', 'battery=tonumber(conky_parse("${{battery_percent {arg} }}"))'.format(**data))
+        filedata = filedata.replace('--{{ BATTERY_WATCH }}', 'index={}\n    battery=tonumber(conky_parse("${{battery_percent {arg} }}"))'.format(index,**data))
+        filedata = filedata.replace('--{{ BATTERY_ACTIVATE }}', 'battery_watch()')
         write_conf(filedata, dest_lua)
 
         print('Writing conky BATTERY config in config file')
+        new_block = "${font Michroma:size=10}${color0}${goto 296}${voffset 22}BATTERY"
         if arch:
-            new_block = "${{font}}${{color0}}${{goto 280}}${{voffset -2}}${{color1}}${{battery_percent {arg}}}%".format(**data)
+            new_block += "\n${{font}}${{color0}}${{goto 280}}${{voffset -2}}${{color1}}${{battery_percent {arg}}}%".format(**data)
         else:
-            new_block = "${{font}}${{color0}}${{goto 280}}${{voffset 1}}${{color1}}${{battery_percent {arg}}}%".format(**data)
+            new_block += "\n${{font}}${{color0}}${{goto 280}}${{voffset 1}}${{color1}}${{battery_percent {arg}}}%".format(**data)
+
         batconf_conky.append(new_block)
         filedata = read_conf(dest_conky)
         filedata = filedata.replace('#{{ BATTERY }}', ''.join(batconf_conky))
+        filedata = filedata.replace('#{{ OS }}', "${font Michroma:bold:size=11}${color0}${voffset 50}${alignc}${execi 3600 awk -F '=' '/PRETTY_NAME/ { print $2 }' /etc/os-release | tr -d '\"'}")
+        write_conf(filedata, dest_conky)
+    else:
+        # adjusting if no battery
+        new_block = "${font Michroma:bold:size=11}${color0}${voffset 90}${alignc}${execi 3600 awk -F '=' '/PRETTY_NAME/ { print $2 }' /etc/os-release | tr -d '\"'}"
+        filedata = read_conf(dest_conky)
+        filedata = filedata.replace('#{{ OS }}', new_block)
         write_conf(filedata, dest_conky)
 
 def write_fsconf_lua(disk, cpunb):
@@ -314,12 +342,12 @@ def write_fsconf_conky(fs):
     if arch:
         voffset = -68
     else:
-        voffset = -65
+        voffset = -68
     fs_max = 3
 
     for cpt in range (len(fs)):
         if cpt > 0:
-                 voffset = 0
+                 voffset = -1
         data = {
                 'voffset': voffset,
                 'filesys': "{}"
@@ -396,23 +424,27 @@ def write_cpuconf_conky(cpunb):
     """ Prepare conky config for CPU
     """
     cpuconf = []
-    voffset = 3
+    voffset = 2
     max_cpu_display = 8
 
     # bring lines closer if many cpus
     if cpunb > 4:
         if cpunb > 6:
-            voffset = 0.5
+            voffset = -0.5
         else:
-            voffset = 1.5
+            if arch:
+                voffset = -1
+            else:
+                voffset = 0.5
 
     log.info('We have {} CPUs'.format(cpunb))
+    log.info('voffest is set to {}'.format(voffset))
     if cpunb >= max_cpu_display:
         cpunb = max_cpu_display
     log.info('We keep {} CPUs'.format(cpunb))
 
-    if cpunb > 4:
-        voffset -= 1
+#    if cpunb > 4:
+#        voffset -= 1
 
     for cpt in range (cpunb):
         data = { 'voffset': voffset, 'cpu': "{}".format(cpt+1)}
@@ -421,7 +453,10 @@ def write_cpuconf_conky(cpunb):
         cpuconf.append(new_block)
 
     log.info('adjusting voffset for top cpu processes...')
-    adjust = 34 - (voffset * cpunb)
+    if cpunb > 4:
+        adjust = 12 - (voffset * cpunb)
+    else:
+        adjust = 28 - (voffset * cpunb)
     new_block = "${{goto 50}}${{voffset {0}}}${{color1}}${{top name 1}}${{alignr 306}}${{top cpu 1}}%".format(adjust)
     cpuconf.append(new_block)
 
@@ -539,6 +574,9 @@ if __name__ == "__main__":
     parser.add_argument('-v', '--verbose', dest='verbose', action="store_true",
                         help='verbose mode, displays gathered info as we found it.'
                        )
+    parser.add_argument('-r', '--reload', dest='reload', action="store_true",
+                        help='Only refresh configuration resource-wise. Colors will stay the same as previously.'
+                       )
 
     args = parser.parse_args()
     # Log Level
@@ -551,11 +589,13 @@ if __name__ == "__main__":
     log.info('Arguments received: {}'.format(args))
 
     # init file
-    crings, ctitle, ctext, ctextsize, arch = init(args.rings, args.title, args.text, args.arch)
+    crings, ctitle, ctext, ctextsize, arch = init(args.rings, args.title, args.text, args.arch, args.reload)
     write_conf_blank(src_lua, dest_lua)
     write_conf_blank(src_conky, dest_conky)
 
     cpunb = cpu_number()
+    #cpunb = 6  # For testing only
+
     log.info('Number of CPU(s): {0}'.format(cpunb))
     meminfo = meminfo()
     log.info('Total memory: {0}'.format(meminfo['MemTotal']))
