@@ -39,6 +39,50 @@ bg_alpha=0.2
 -- skyblue  | 0x008cff
 -- darkgray | 0x323232
 
+settings_table_io = {
+    {
+        name='top_io io_perc 1',
+        arg='',
+        max=100,
+        bg_colour=0x3b3b3b,
+        bg_alpha=0.8,
+        fg_colour=0xff8523,
+        fg_alpha=0.8,
+        x=370, y=98,
+        radius=55,
+        thickness=12,
+        start_angle=120,
+        end_angle=360
+    },
+    {
+        name='top_io io_perc 2',
+        arg='',
+        max=100,
+        bg_colour=0x3b3b3b,
+        bg_alpha=0.6,
+        fg_colour=0xff8523,
+        fg_alpha=0.8,
+        x=370, y=98,
+        radius=42,
+        thickness=11,
+        start_angle=120,
+        end_angle=360
+    },
+    {
+        name='top_io io_perc 3',
+        arg='',
+        max=100,
+        bg_colour=0x3b3b3b,
+        bg_alpha=0.4,
+        fg_colour=0xff8523,
+        fg_alpha=0.8,
+        x=370, y=98,
+        radius=30,
+        thickness=10,
+        start_angle=120,
+        end_angle=360
+    }
+}
 
 settings_table = {
     {
@@ -177,6 +221,27 @@ function draw_ring(cr,t,pt)
 end
 
 function conky_ring_stats()
+    -- 20170715 IO_WAIT
+	local function setup_rings_io(cr,pt)
+		local str=''
+		local value=0
+		
+        local warn_value=50
+        local crit_value=70
+
+		str=string.format('${%s %s}',pt['name'],pt['arg'])
+        iowait=0
+        ioused=tonumber(conky_parse(str))
+        if ioused>0 then 
+            iowait=100 - ioused
+        end
+		value=tonumber(iowait)
+
+		if value == nil then value = 0 end
+		pct=value/pt['max']
+		draw_ring(cr,pct,pt)
+	end
+
 	local function setup_rings(cr,pt)
 		local str=''
 		local value=0
@@ -204,6 +269,10 @@ function conky_ring_stats()
                 display_temp=temp_watch()
 		setup_rings(cr,settings_table[i])
 	    end
+        -- IO_WAIT
+	    for i in pairs(settings_table_io) do
+		setup_rings_io(cr,settings_table_io[i])
+        end
 	end
    cairo_surface_destroy(cs)
   cairo_destroy(cr)
