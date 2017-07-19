@@ -66,6 +66,8 @@ conky.config = {
 
 	lua_load = '~/conky/conky-grapes/rings-v2_gen.lua',
 	lua_draw_hook_pre = 'conky_main',
+
+    diskio_avg_samples = 2
 };
 
 conky.text = [[
@@ -76,8 +78,15 @@ ${voffset 12}${color1}${goto 106}${freq_g cpu0} Ghz${alignr 330}${hwmon temp 1} 
 ${goto 50}${color1}${top name 2}${alignr 306}${top cpu 2}%
 ${goto 50}${color1}${top name 3}${alignr 306}${top cpu 3}%
 ${font Michroma:size=10}${color0}${goto 80}${voffset 4}CPU
+## DISKIO ################
+${voffset -130}${goto 378}${font}${color1}${top_io name 1}${alignr 30}${top_io io_write 1}
+${voffset 1}${goto 378}${font}${color1}${top_io name 2}${alignr 30}${top_io io_write 2}
+${voffset 1}${goto 378}${font}${color1}${top_io name 3}${alignr 30}${top_io io_write 3}
+${goto 370}${voffset 8}${color1}disk writes${alignr 30}${diskio_write}
+${goto 370}${color1}disk reads${alignr 30}${diskio_read}
+${font Michroma:size=10}${color0}${goto 418}${voffset 2}IO WAIT
 ## MEMORY ################
-${font Michroma:size=10}${color0}${goto 394}${voffset 43}MEMORY
+${font Michroma:size=10}${color0}${goto 394}${voffset 79}MEMORY
 ${font}${goto 324}${voffset -4}${color1}${top_mem name 1}${alignr 40}${top_mem mem 1}%
 ${goto 324}${color1}${top_mem name 2}${alignr 40}${top_mem mem 2}%
 ${goto 324}${color1}${top_mem name 3}${alignr 40}${top_mem mem 3}%

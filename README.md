@@ -1,6 +1,9 @@
 # conky-grapes
 
 **The Github repository is only a manually poorly maintained mirror, only for visibility purppose.** I use GitLab CE for my own projects (which has no mirroring feature on Community Edition). Please reach out for me [there](https://gitlab.nomagic.fr/popi/conky-grapes) if you need to interact (you can sign in with your Github account).
+
+### Updates
+2017-07-19: New io_wait ring! Due to 
  
 ## What is it
 This repository aims at providing you everything you need to be able to **very quickly** build a fantastic grape-shaped lua/ conky adapted to your machine including:
