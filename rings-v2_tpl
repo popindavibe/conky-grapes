@@ -12,6 +12,7 @@ To call this script in Conky, use the following (assuming that you save this scr
 	lua_draw_hook_pre ring_stats
 	
 Changelog:
++ v2.1.1 -- addedd IO_WAIT ring
 + v2.1.0 -- templated for automation, 
 + v2.0.0 -- Changed some values for ArchLinux
 + v1.2.2 -- Added color change for near-limits values / modified placement
@@ -46,7 +47,7 @@ settings_table_io = {
         max=100,
         bg_colour=0x3b3b3b,
         bg_alpha=0.8,
-        fg_colour=0xff8523,
+        fg_colour=0x34cdff,
         fg_alpha=0.8,
         x=370, y=98,
         radius=55,
@@ -60,7 +61,7 @@ settings_table_io = {
         max=100,
         bg_colour=0x3b3b3b,
         bg_alpha=0.6,
-        fg_colour=0xff8523,
+        fg_colour=0x34cdff,
         fg_alpha=0.8,
         x=370, y=98,
         radius=42,
@@ -74,7 +75,7 @@ settings_table_io = {
         max=100,
         bg_colour=0x3b3b3b,
         bg_alpha=0.4,
-        fg_colour=0xff8523,
+        fg_colour=0x34cdff,
         fg_alpha=0.8,
         x=370, y=98,
         radius=30,
