@@ -3,7 +3,8 @@
 **The Github repository is only a manually poorly maintained mirror, only for visibility purppose.** I use GitLab CE for my own projects (which has no mirroring feature on Community Edition). Please reach out for me [there](https://gitlab.nomagic.fr/popi/conky-grapes) if you need to interact (you can sign in with your Github account).
 
 ### Updates
-2017-07-19: New io_wait ring! Due to 
+2017-08-13: New io_wait ring! Due to the nature of io_wait monitoring in conky, I reversed display for this one. In the middle you will see average values for reads and writes and the rigns will show the 3 processes using most IO. 
+It's not perfect, but it can point out which process is creating a bottleneck.
  
 ## What is it
 This repository aims at providing you everything you need to be able to **very quickly** build a fantastic grape-shaped lua/ conky adapted to your machine including:
