@@ -45,18 +45,26 @@ default_fg_color = '0x34cdff'
 
 couleurs = {
         'yellow': 'fffd1d',
+        'lightyellow': 'e7dc64',
         'orange': 'ff8523',
+        'lightorange': 'e79064',
         'red': 'ff1d2b',
+        'lightred': 'e7646a',
         'green': '1dff22',
+        'lightgreen': '64e766',
         'pink': 'd70751',
-        'skyblue': '8fd3ff',
-        'brown': 'd7bd4c',
+        'lightpink': 'e78cb7',
+        'brown': 'b57131',
+        'lightbrown': 'ceab8a',
         'blue': '165cc4',
         'iceblue': '43d2e5',
+        'skyblue': '8fd3ff',
         'white': 'efefef',
         'grey': '323232',
+        'lightgrey': '323232',
         'black': '000000',
         'violet': 'bb07d7',
+        'lightviolet': 'a992e6',
         'ASSE': '006a32'
         }
 
