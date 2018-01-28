@@ -18,6 +18,7 @@ and battery when relevant.
 _note: the limits on cpu and filesystems are for display reason._
 
 ![](sample1.jpeg)
+Latest version adds an extra ring for IO (not visible here)
 
 ## Why use it
 To tune up your desktop of course! It is under [GPLv3 License](gpl-3.0.txt), so feel free to use, study, improve and share as you please.
