@@ -17,8 +17,8 @@ conky.config = {
 	temperature_unit = 'celsius',
 
 -- With class override, gets images to display properly (black bg)
-    own_window_argb_visual = false, 
-	own_window_argb_value = 255,
+    own_window_argb_visual = true, 
+	own_window_argb_value = 0,
 
 -- Window specifications #
     own_window_class = override,
@@ -38,8 +38,8 @@ conky.config = {
 	maximum_width = 520,
 
 	alignment = 'top_right',
-	gap_x = -20,
-	gap_y = 100,
+	gap_x = 20,
+	gap_y = 112,
 
 -- Graphics settings #
 	draw_shades = false,
@@ -71,7 +71,7 @@ conky.config = {
 };
 
 conky.text = [[
-${voffset 12}${color1}${goto 106}${freq_g cpu0} Ghz${alignr 330}${hwmon temp 1} °C
+${voffset 12}${color1}${goto 106}${freq_g cpu0} Ghz${alignr 330}${hwmon 1 temp 1} °C
 #${voffset 16}${color1}${goto 106}${freq_g cpu0} Ghz${alignr 330}${acpitemp} °C
 ## CPU ###################
 #{{ CPU }}

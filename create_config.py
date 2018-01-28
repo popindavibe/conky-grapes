@@ -625,11 +625,11 @@ if __name__ == "__main__":
 
     print ("""\nSuccess!\nNew config files have been created:\n- {}\n- {} \n\nIf you \
 add a preivous conky-grapes running, the update should be instantaneous. \
-If conky-grapes is not running, you can activate it with following command:\n 
-conky -q -d -c ~/conky/conky-grapes/conky_gen.conkyrc\n\n 
+If conky-grapes is not running, you can activate it with following command:\n
+conky -q -d -c ~/conky/conky-grapes/conky_gen.conkyrc\n\n
 ** If it runs but text is not aligned or font is horribly wrong (and you \
 installed required fonts), chances are you are using a \
-recent version of freetype2 (2.8 onwardsi, see \
+recent version of freetype2 (2.8 onwards, see \
 https://bbs.archlinux.org/viewtopic.php?id=226380), which breaks vertical \
 alignment with conky.\nIf you are on Archlinux, install AUR package \
 https://aur.archlinux.org/packages/freetype2-ttmetrics to fix the vertical \
