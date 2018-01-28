@@ -1,6 +1,6 @@
 # conky-grapes
 
-**The Github repository is only a mirror, only for visibility purppose.** I use GitLab CE for my own projects (which has no mirroring feature on Community Edition, but I'm using the workaround proposed in Tobias Monk's [gipsy](https://gitlab.com/t-munk/gipsy) project). Please reach out for me [there](https://gitlab.nomagic.fr/popi/conky-grapes) if you need to interact (you can sign in with your Github account).
+**The Github repository is only a mirror, only for visibility purppose.** I use GitLab CE for my own projects (which has no mirroring feature on Community Edition, but I'm using the workaround proposed in Tobias Monk's [gipsy](https://gitlab.com/t-munk/gipsy) project). Please reach out for me [on the gitlab instance](https://gitlab.nomagic.fr/popi/conky-grapes) preferrably if you need to interact (you can sign in with your Github account).
 
 ### Updates
 2018-01-28: Activating mirror between gitlab and github for this project. Also latest updates should allow the script to work on gnome-shell (though there might still be shome issues).
