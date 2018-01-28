@@ -1,3 +1,4 @@
+# Mirroring to github
 mirror:
   script:
     - git config --global push.default simple
