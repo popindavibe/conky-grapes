@@ -74,12 +74,12 @@ def init(rings, title, text, arch, reload):
     # Keeping previous colors?
     if reload:
         with open(dest_conky, 'r') as f:
-            filedata = f.read() 
+            filedata = f.read()
             matchconky = re.findall('^ +color[01] = \'#([0-9a-f]{6})', filedata, re.M)
             print('colors were: {}'.format(matchconky))
 
         with open(dest_lua, 'r') as f:
-            filedata = f.read() 
+            filedata = f.read()
             matchlua = re.findall('^normal="0x([0-9a-f]{6})"', filedata, re.M)
             print('colors were: {}'.format(matchlua))
             crings = '0x'+matchlua[0]
@@ -135,7 +135,7 @@ def write_conf_blank(src, dest):
     filedata = filedata.replace('--{{ COLOR0 }}', "    color0 = '{}',".format(ctitle))
     filedata = filedata.replace('--{{ COLOR1 }}', "    color1 = '{}',".format(ctext))
     filedata = filedata.replace('--{{ FONTTEXT }}', "    font = 'Play:normal:size={}',".format(ctextsize))
-	
+
     write_conf(filedata, dest)
 
 def cpu_number():
@@ -160,7 +160,7 @@ def route_interface():
             routeinfo = line.split('\t')
             if routeinfo[1] == "00000000":
                 gwinterface = routeinfo[0]
-    
+
     log.info('Gateway interface: {0}'.format(gwinterface))
 
     """ Check if the gateway interface is wifi
