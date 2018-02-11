@@ -736,12 +736,9 @@ If conky-grapes is not running, you can activate it with following command:\n
 conky -q -d -c ~/conky/conky-grapes/conky_gen.conkyrc\n\n 
 ** If it runs but text is not aligned or font is horribly wrong (and you \
 installed required fonts), chances are you are using a \
-recent version of freetype2 (2.8 onwardsi, see \
-https://bbs.archlinux.org/viewtopic.php?id=226380), which breaks vertical \
-alignment with conky.\nIf you are on Archlinux, install AUR package \
-https://aur.archlinux.org/packages/freetype2-ttmetrics to fix the vertical \
-alignment (you might need to restart your session / machine for the change \
-to take effect. \nThen call that script again using the --arch option."""
+recent version of freetype2 (2.8 onwards), which breaks vertical \
+alignment with previous conky work. The '--arch' option when creating your \
+conky configuration file should address this."""
          .format(dest_conky, dest_lua)
          )
 
