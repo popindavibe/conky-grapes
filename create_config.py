@@ -74,12 +74,12 @@ def init(rings, title, text, arch, reload):
     # Keeping previous colors?
     if reload:
         with open(dest_conky, 'r') as f:
-            filedata = f.read() 
+            filedata = f.read()
             matchconky = re.findall('^ +color[01] = \'#([0-9a-f]{6})', filedata, re.M)
             print('colors were: {}'.format(matchconky))
 
         with open(dest_lua, 'r') as f:
-            filedata = f.read() 
+            filedata = f.read()
             matchlua = re.findall('^normal="0x([0-9a-f]{6})"', filedata, re.M)
             print('colors were: {}'.format(matchlua))
             crings = '0x'+matchlua[0]
@@ -135,7 +135,7 @@ def write_conf_blank(src, dest):
     filedata = filedata.replace('--{{ COLOR0 }}', "    color0 = '{}',".format(ctitle))
     filedata = filedata.replace('--{{ COLOR1 }}', "    color1 = '{}',".format(ctext))
     filedata = filedata.replace('--{{ FONTTEXT }}', "    font = 'Play:normal:size={}',".format(ctextsize))
-	
+
     write_conf(filedata, dest)
 
 def cpu_number():
@@ -160,7 +160,7 @@ def route_interface():
             routeinfo = line.split('\t')
             if routeinfo[1] == "00000000":
                 gwinterface = routeinfo[0]
-    
+
     log.info('Gateway interface: {0}'.format(gwinterface))
 
     """ Check if the gateway interface is wifi
@@ -266,10 +266,11 @@ def write_batconf():
         write_conf(filedata, dest_lua)
 
         print('Writing conky BATTERY config in config file')
-        new_block = "${font Michroma:size=10}${color0}${goto 296}${voffset 22}BATTERY"
         if arch:
-            new_block += "\n${{font}}${{color0}}${{goto 280}}${{voffset -2}}${{color1}}${{battery_percent {arg}}}%".format(**data)
+            new_block = "${font Michroma:size=10}${color0}${goto 296}${voffset 28}BATTERY"
+            new_block += "\n${{font}}${{color0}}${{goto 280}}${{voffset -4}}${{color1}}${{battery_percent {arg}}}%".format(**data)
         else:
+            new_block = "${font Michroma:size=10}${color0}${goto 296}${voffset 22}BATTERY"
             new_block += "\n${{font}}${{color0}}${{goto 280}}${{voffset 1}}${{color1}}${{battery_percent {arg}}}%".format(**data)
 
         batconf_conky.append(new_block)
@@ -348,7 +349,7 @@ def write_fsconf_conky(fs):
     """
     conf = []
     if arch:
-        voffset = -70
+        voffset = -81
     else:
         voffset = -68
     fs_max = 3
@@ -366,7 +367,10 @@ def write_fsconf_conky(fs):
         conf.append(new_block)
 
     log.info('adjusting voffset for FS...')
-    adjust = 12 + ((fs_max - len(fs)) *10)
+    if arch:
+        adjust = 8 + ((fs_max - len(fs)) *10)
+    else:
+        adjust = 12 + ((fs_max - len(fs)) *10)
     new_block = "${{font Michroma:size=10}}${{color0}}${{goto 68}}${{voffset {0}}}FILESYSTEM".format(adjust)
     conf.append(new_block)
 
@@ -432,7 +436,11 @@ def write_cpuconf_conky(cpunb):
     """ Prepare conky config for CPU
     """
     cpuconf = []
-    voffset = 2
+    if arch:
+        voffset = 1
+    else:
+        voffset = 2
+
     max_cpu_display = 8
 
     # bring lines closer if many cpus
@@ -465,12 +473,80 @@ def write_cpuconf_conky(cpunb):
         adjust = 12 - (voffset * cpunb)
     else:
         adjust = 28 - (voffset * cpunb)
-    new_block = "${{goto 50}}${{voffset {0}}}${{color1}}${{top name 1}}${{alignr 306}}${{top cpu 1}}%".format(adjust)
+
+    if arch:
+        new_block = "${{goto 49}}${{voffset 12}}${{color1}}${{top name 1}}${{alignr 306}}${{top cpu 1}}%".format(adjust)
+    else:
+        new_block = "${{goto 50}}${{voffset {0}}}${{color1}}${{top name 1}}${{alignr 306}}${{top cpu 1}}%".format(adjust)
+
     cpuconf.append(new_block)
 
     print('Writing CPU conky config in config file')
     filedata = read_conf(dest_conky)
     filedata = filedata.replace('#{{ CPU }}', ''.join(cpuconf))
+    write_conf(filedata, dest_conky)
+
+def write_diskioconf_conky():
+    """ Prepare conky config for IO
+    """
+    ioconf = []
+    if arch:
+        voffset = 1
+    else:
+        voffset = 2
+
+    log.info('voffest is set to {}'.format(voffset))
+
+    # top io wait processes
+    # First line, fixed vertical alignment
+    new_block = "${voffset -130}${goto 378}${font}${color1}${top_io name 1}${alignr 30}${top_io io_write 1}%\n"
+    ioconf.append(new_block)
+
+    for cpt in range (2,4):
+        data = { 'voffset': voffset, 'io': "{}".format(cpt)}
+        new_block = "${{goto 378}}${{voffset {voffset}}}${{color1}}${{top_io name {io}}}${{alignr 30}}${{top_io io_write {io}}}%\n".format(**data)
+        ioconf.append(new_block)
+
+    if arch:
+        new_block = "${goto 370}${voffset 4}${color1}disk writes${alignr 30}${diskio_write}%\n${goto 370}${color1}disk reads${alignr 30}${diskio_read}%\n${font Michroma:size=10}${color0}${goto 418}${voffset 1}IO WAIT\n"
+    else:
+        new_block = "${goto 370}${voffset 8}${color1}disk writes${alignr 30}${diskio_write}%\n${goto 370}${color1}disk reads${alignr 30}${diskio_read}%\n${font Michroma:size=10}${color0}${goto 418}${voffset 2}IO WAIT"
+    ioconf.append(new_block)
+
+    print('Writing IO conky config in config file')
+    filedata = read_conf(dest_conky)
+    filedata = filedata.replace('#{{ DISKIO }}', ''.join(ioconf))
+    write_conf(filedata, dest_conky)
+
+def write_memconf_conky():
+    """ Prepare conky config for IO
+    """
+    memconf = []
+
+    # top memory processes
+    log.info('Starting Memory config')
+    if arch:
+        new_block = "${font Michroma:size=10}${color0}${goto 394}${voffset 59}MEMORY\n${font}${goto 324}${voffset -4}${color1}${top_mem name 1}${alignr 40}${top_mem mem 1}%\n"
+    else:
+        new_block = "${font Michroma:size=10}${color0}${goto 394}${voffset 79}MEMORY\n${font}${goto 324}${voffset -4}${color1}${top_mem name 1}${alignr 40}${top_mem mem 1}%\n"
+
+    memconf.append(new_block)
+
+    for cpt in range (2,4):
+        data = { 'mem': "{}".format(cpt)}
+        new_block = "${{goto 324}}${{color1}}${{top_mem name {mem}}}${{alignr 40}}${{top_mem mem {mem}}}%\n".format(**data)
+        memconf.append(new_block)
+
+    if arch:
+        new_block = "${voffset 8}${goto 348}${color1}SWAP${alignr 40}${color1}${swap} / ${color1}${swapmax}\n${voffset 1}${goto 348}${color1}RAM ${alignr 40}${color1}${mem} / ${color1}${memmax}\n"
+    else:
+        new_block = "${voffset 16}${goto 348}${color1}SWAP${alignr 40}${color1}${swap} / ${color1}${swapmax}\n${voffset 3}${goto 348}${color1}RAM ${alignr 40}${color1}${mem} / ${color1}${memmax}\n"
+    memconf.append(new_block)
+    print("memconf = {}".format(memconf))
+
+    print('Writing MEMORY conky config in config file')
+    filedata = read_conf(dest_conky)
+    filedata = filedata.replace('#{{ MEMORY }}', ''.join(memconf))
     write_conf(filedata, dest_conky)
 
 def write_netconf_lua(interface):
@@ -527,7 +603,6 @@ def write_netconf_conky(interface):
         with open(working_dir+'nonetconf') as f:
             for line in f:
                 netconf.append(line)
-        #print('netconf: {0}'.format(netconf))
         print('Writing NETWORK conky config in config file')
         filedata = read_conf(dest_conky)
         filedata = filedata.replace('#{{ NETWORK }}', ''.join(netconf))
@@ -535,24 +610,53 @@ def write_netconf_conky(interface):
 
     elif interface[1] is True:
         print('Setting up Wifi as main interface')
-        with open(working_dir+'wificonf') as f:
-            for line in f:
-                netconf.append(re.sub(r'INTERFACE', interface[0], line))
-        #print('netconf: {0}'.format(netconf))
+        if arch:
+            with open(working_dir+'wificonf_arch') as f:
+                for line in f:
+                    netconf.append(re.sub(r'INTERFACE', interface[0], line))
+        else:
+            with open(working_dir+'wificonf') as f:
+                for line in f:
+                    netconf.append(re.sub(r'INTERFACE', interface[0], line))
+
         print('Writing NETWORK conky config in config file')
         filedata = read_conf(dest_conky)
         filedata = filedata.replace('#{{ NETWORK }}', ''.join(netconf))
         write_conf(filedata, dest_conky)
     else:
         print('Setting up NIC as main interface')
-        with open(working_dir+'ethconf') as f:
-            for line in f:
-                netconf.append(re.sub(r'INTERFACE', interface[0], line))
-        #print('netconf: {0}'.format(netconf))
+        if arch:
+            with open(working_dir+'ethconf_arch') as f:
+                for line in f:
+                    netconf.append(re.sub(r'INTERFACE', interface[0], line))
+        else:
+            with open(working_dir+'ethconf') as f:
+                for line in f:
+                    netconf.append(re.sub(r'INTERFACE', interface[0], line))
+
         print('Writing NETWORK conky config in config file')
         filedata = read_conf(dest_conky)
         filedata = filedata.replace('#{{ NETWORK }}', ''.join(netconf))
         write_conf(filedata, dest_conky)
+
+def write_timeconf_conky():
+    """ Prepare conky config for Time/Date
+    """
+    timeconf = []
+
+    # top timeory processes
+    log.info('Starting Memory config')
+    if arch:
+        new_block = "${font Michroma:size=10}${alignr 300}${voffset -50}${color0}${time %a} ${color0}${time %x}\n${font Michroma:size=18}${alignr 318}${color1}${voffset -4}${time %H}:${time %M}"
+    else:
+        new_block = "${font Michroma:size=10}${alignr 300}${voffset -40}${color0}${time %a} ${color0}${time %x}\n${font Michroma:size=18}${alignr 318}${color1}${voffset -4}${time %H}:${time %M}"
+
+    timeconf.append(new_block)
+
+    print('Writing TIME conky config in config file')
+    filedata = read_conf(dest_conky)
+    filedata = filedata.replace('#{{ TIME }}', ''.join(timeconf))
+    write_conf(filedata, dest_conky)
 
 
 # main
@@ -617,8 +721,11 @@ if __name__ == "__main__":
     write_netconf_lua(interface)
 
     write_cpuconf_conky(cpunb)
+    write_diskioconf_conky()
+    write_memconf_conky()
     write_fsconf_conky(disks)
     write_netconf_conky(interface)
+    write_timeconf_conky()
 
     write_batconf()
     write_color_lua()
