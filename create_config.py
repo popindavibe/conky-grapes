@@ -350,7 +350,7 @@ def write_fsconf_conky(fs):
     if arch:
         voffset = -81
     else:
-        voffset = -68
+        voffset = -80
     fs_max = 3
 
     for cpt in range (len(fs)):
@@ -539,7 +539,7 @@ def write_memconf_conky():
     if arch:
         new_block = "${voffset 8}${goto 348}${color1}SWAP${alignr 40}${color1}${swap} / ${color1}${swapmax}\n${voffset 1}${goto 348}${color1}RAM ${alignr 40}${color1}${mem} / ${color1}${memmax}\n"
     else:
-        new_block = "${voffset 16}${goto 348}${color1}SWAP${alignr 40}${color1}${swap} / ${color1}${swapmax}\n${voffset 3}${goto 348}${color1}RAM ${alignr 40}${color1}${mem} / ${color1}${memmax}\n"
+        new_block = "${voffset 14}${goto 348}${color1}SWAP${alignr 40}${color1}${swap} / ${color1}${swapmax}\n${voffset 3}${goto 348}${color1}RAM ${alignr 40}${color1}${mem} / ${color1}${memmax}\n"
     memconf.append(new_block)
     print("memconf = {}".format(memconf))
 
