@@ -1,0 +1,6 @@
+${font}${color1}${alignr 54}${voffset -8}Interface    INTERFACE
+${font}${color1}${goto 298}${voffset 2}Up${goto 370}${color1}${totalup INTERFACE} / ${color1}${upspeed INTERFACE}
+${goto 298}${color1}Down${goto 370}${color1}${totaldown INTERFACE} / ${color1}${downspeed INTERFACE}
+${goto 300}${voffset 4}Local IP${goto 370}${addr INTERFACE}
+${goto 300}${voffset 0}Public IP${goto 370}${execi 3600 wget -q -O - checkip.dyndns.org | sed -e 's/[^[:digit:]\|.]//g'}
+${voffset -24}
