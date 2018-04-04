@@ -3,10 +3,11 @@
 **The Github repository is only a mirror, only for visibility purppose.** I use GitLab CE for my own projects (which has no mirroring feature on Community Edition, but I'm using the workaround proposed in Tobias Monk's [gipsy](https://gitlab.com/t-munk/gipsy) project). Please reach out for me [on the gitlab instance](https://gitlab.nomagic.fr/popi/conky-grapes) preferrably if you need to interact (you can sign in with your Github account).
 
 ### Updates
+2018-04-04: tagging first stable as reference.
 2018-01-28: Activating mirror between gitlab and github for this project. Also latest updates should allow the script to work on gnome-shell (though there might still be shome issues).
-2017-08-13: New io_wait ring! Due to the nature of io_wait monitoring in conky, I reversed display for this one. In the middle you will see average values for reads and writes and the rigns will show the 3 processes using most IO. 
+2017-08-13: New io_wait ring! Due to the nature of io_wait monitoring in conky, I reversed display for this one. In the middle you will see average values for reads and writes and the rigns will show the 3 processes using most IO.
 It's not perfect, but it can point out which process is creating a bottleneck.
- 
+
 ## What is it
 This repository aims at providing you everything you need to be able to **very quickly** build a fantastic grape-shaped lua/ conky adapted to your machine including:
 * Metrics on temperature, cpu (maximum fixed to 8 cpu to display), disks (maximum 3 filesystem), memory (ram and swap), networking (we select the interface used as default gateway),
