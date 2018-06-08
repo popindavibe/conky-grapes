@@ -1,6 +1,8 @@
 # conky-grapes
 
-**The Github repository is only a mirror, only for visibility purppose.** I use GitLab CE for my own projects (which now has mirroring feature on Community Edition) , but I'm using the workaround proposed in Tobias Monk's [gipsy](https://gitlab.com/t-munk/gipsy) project). You can authenticate on my gitlab server using your Github or Gitlab account to submit issues or merge requests.
+**The Github repository is only a mirror, only for visibility purppose.** I use GitLab CE for my own projects (which now has mirroring feature on Community Edition).
+
+You can authenticate on my gitlab server using your Github or Gitlab account to submit issues or merge requests.
 
 ### Updates
 - 2018-04-04: tagging first stable as reference.
