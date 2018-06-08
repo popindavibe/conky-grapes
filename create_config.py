@@ -732,15 +732,15 @@ if __name__ == "__main__":
     write_batconf()
     write_color_lua()
 
-    print ("""\nSuccess!\nNew config files have been created:\n- {}\n- {} \n\nIf you \
-add a preivous conky-grapes running, the update should be instantaneous. \
-If conky-grapes is not running, you can activate it with following command:\n
-conky -q -d -c ~/conky/conky-grapes/conky_gen.conkyrc\n\n
-** If it runs but text is not aligned or font is horribly wrong (and you \
-installed required fonts), chances are you are using a \
-recent version of freetype2 (2.8 onwards), which breaks vertical \
-alignment with previous conky work. The '--arch' option when creating your \
-conky configuration file should address this."""
-         .format(dest_conky, dest_lua)
-         )
+    msg_ok = ("\n    *** Success! ***\n\nNew config files have been created:"
+              "\n- {}\n- {} \n\nIf you add a preivous conky-grapes running,"
+              " the update should be instantaneous. If conky-grapes is not"
+              " running, you can activate it with following command:\n"
+              "conky -q -d -c ~/conky/conky-grapes/conky_gen.conkyrc\n\n"
+              "If it runs but text is not aligned or font is horribly wrong"
+              " (and you installed required fonts), chances are you are using a"
+              " recent version of freetype2 (2.8 onwards), which breaks vertical"
+              " alignment with previous conky work. The '--arch' option when creating"
+              " your conky configuration file should address this.")
+    print(msg_ok .format(dest_conky, dest_lua))
 
