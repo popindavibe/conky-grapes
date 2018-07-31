@@ -32,7 +32,7 @@ To tune up your desktop of course! It is under [GPLv3 License](gpl-3.0.txt), so 
   - install conky-full
   - clone this repo to ~/conky/conky-grapes
   - install the fonts
-  - use `create_config.py` to generate your configuration
+  - use `create_config.py` to generate your configuration (use `-h` to display help)
   - enjoy color combinations and spend a fairly big amount of time looking at those magic rings
 
 ```
