@@ -732,7 +732,7 @@ if __name__ == "__main__":
     write_color_lua()
 
     msg_ok = ("\n    *** Success! ***\n\nNew config files have been created:"
-              "\n- {}\n- {} \n\nIf you add a preivous conky-grapes running,"
+              "\n- {}\n- {} \n\nIf you add a previous conky-grapes running,"
               " the update should be instantaneous. If conky-grapes is not"
               " running, you can activate it with following command:\n"
               "conky -q -d -c ~/conky/conky-grapes/conky_gen.conkyrc\n\n"
