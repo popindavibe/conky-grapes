@@ -140,6 +140,9 @@ def write_conf_blank(src, dest):
 def cpu_number():
     """ Looks for number of CPU threads
     """
+    # beyond 6 it gets ugly
+    max_cpu_display = 6
+
     with open('/proc/cpuinfo') as f:
         nbcpu = 0
         for line in f:
@@ -149,7 +152,10 @@ def cpu_number():
                 if line.rstrip('\n').startswith('cpu MHz'):
                     nbcpu += 1
 
-    log.info('Number of CPU(s): {0}'.format(nbcpu))
+    if nbcpu >= max_cpu_display:
+        nbcpu = max_cpu_display
+
+    log.info('Number of CPU(s) kept: {0}'.format(nbcpu))
     return nbcpu
 
 def route_interface():
@@ -388,15 +394,11 @@ def write_cpuconf_lua(cpunb):
     """
     cpuconf_lua = []
     radius = 86
-    max_cpu_display = 8
     thickness_max = 13
     alpha = 0.7
     # we will spread alpha over 0.4 gradient
     alpha_scale = 0.4 / cpunb
     log.info('We have {} CPUs'.format(cpunb))
-    if cpunb >= max_cpu_display:
-        cpunb = max_cpu_display
-    log.info('We keep {} CPUs'.format(cpunb))
 
     if cpunb > 4:
         thickness_max -= (cpunb - 3)
@@ -445,26 +447,17 @@ def write_cpuconf_conky(cpunb):
     else:
         voffset = 1
 
-    max_cpu_display = 8
-
     # bring lines closer if many cpus
     if cpunb > 4:
-        if cpunb > 6:
-            voffset = -0.5
+        if cpunb >= 6:
+            voffset = -3
         else:
             if old:
                 voffset = 0.5
             else:
                 voffset = -1
 
-    log.info('We have {} CPUs'.format(cpunb))
     log.info('voffest is set to {}'.format(voffset))
-    if cpunb >= max_cpu_display:
-        cpunb = max_cpu_display
-    log.info('We keep {} CPUs'.format(cpunb))
-
-#    if cpunb > 4:
-#        voffset -= 1
 
     for cpt in range (cpunb):
         data = { 'voffset': voffset, 'cpu': "{}".format(cpt+1)}
@@ -497,7 +490,10 @@ def write_diskioconf_conky():
     if old:
         voffset = 2
     else:
-        voffset = 1
+        if cpunb > 4:
+            voffset = -1
+        else:
+            voffset = 1
 
     log.info('voffest is set to {}'.format(voffset))
 
