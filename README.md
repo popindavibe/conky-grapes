@@ -21,7 +21,7 @@ and battery when relevant.
 
 _note: the limits on cpu and filesystems are for display reason._
 
-![](https://lut.im/Mp72GdjYmf/AfqHqBsvmWCqY3yP)
+![](https://pic.nomagic.uk/W9MjLPJF)
 
 ## Why use it
 To tune up your desktop of course! It is under [GPLv3 License](gpl-3.0.txt), so feel free to use, study, improve and share as you please.
