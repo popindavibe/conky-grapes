@@ -2,7 +2,7 @@
 
 **The Github repository is only a mirror, only for visibility purppose.** I use GitLab CE for my own projects (which now has mirroring feature on Community Edition).
 
-You can authenticate on my gitlab server using your Github or Gitlab account to submit issues or merge requests.
+You can authenticate on [my gitlab server](https://gitlab.nomagic.uk/popi/conky-grapes) using your Github or Gitlab account to submit issues or merge requests.
 
 ### Updates
 - 2018-07-22: changed option `--arch` to `--old` with reverse meaning, so that by default we create config for freetype >= 2.8.
