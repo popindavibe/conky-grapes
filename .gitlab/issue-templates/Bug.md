@@ -1,3 +1,10 @@
+<!---
+Please read this!
+
+Before opening a new issue, make sure that both README.md and 
+Gitlab Wiki have been consulted.
+--->
+
 [//]: # (Title for your issue. Example: "Conky not displaying after upgrade")
 
 ## Description
