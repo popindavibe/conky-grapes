@@ -71,9 +71,8 @@ conky.config = {
 };
 
 conky.text = [[
-${voffset 12}${color1}${goto 106}${freq_g cpu0} Ghz${alignr 330}${hwmon 1 temp 1} °C
-#${voffset 16}${color1}${goto 106}${freq_g cpu0} Ghz${alignr 330}${acpitemp} °C
 ## CPU ###################
+#{{ TEMPERATURE }}
 #{{ CPU }}
 ${goto 50}${color1}${top name 2}${alignr 306}${top cpu 2}%
 ${goto 50}${color1}${top name 3}${alignr 306}${top cpu 3}%

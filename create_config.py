@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 #    This script creates configuration files for conky and lua based on
@@ -20,7 +20,6 @@
 #    along with this program.  If not, see ihttp://www.gnu.org/licenses/gpl.html.
 ##############################################################################
 
-from __future__ import print_function
 import argparse
 import time
 import platform
@@ -29,6 +28,7 @@ from collections import OrderedDict
 import sys
 from os.path import expanduser
 import logging as log
+import pathlib
 
 # Inittiating variables
 home = expanduser("~")
@@ -136,6 +136,31 @@ def write_conf_blank(src, dest):
     filedata = filedata.replace('--{{ FONTTEXT }}', "    font = 'Play:normal:size={}',".format(ctextsize))
 
     write_conf(filedata, dest)
+
+def cpu_temperature():
+    """ Attempt to return the temperature of CPU
+    """
+    cpu_temp = {}
+    temp_candidates = [
+        '/sys/class/hwmon/hwmon0/temp0_input',
+        '/sys/class/hwmon/hwmon0/temp1_input',
+        '/sys/class/hwmon/hwmon1/temp0_input',
+        '/sys/class/hwmon/hwmon1/temp1_input',
+        ]
+    try:
+        for i in temp_candidates:
+            p = pathlib.Path(i)
+            pp = pathlib.PurePath(i)
+            log.info('Path is {}'. format(p))
+            if p.exists():
+                cpu_temp['number_hwmon'] = re.search(r'\d+$', pp.parent.name).group(0)
+                cpu_temp['number_temp'] = re.sub(r'.*(\d+).*$', r'\1', pp.name)
+                break
+    except Exception as e:
+      log.error('failed to find cpu temperature. {0}'. format(e))
+
+    log.info('Temperature for cpu: {0}'.format(cpu_temp))
+    return cpu_temp
 
 def cpu_number():
     """ Looks for number of CPU threads
@@ -518,8 +543,63 @@ def write_diskioconf_conky():
     filedata = filedata.replace('#{{ DISKIO }}', ''.join(ioconf))
     write_conf(filedata, dest_conky)
 
+
+def write_tempconf_conky(temperature):
+    """ Prepare conky config for Temperature
+    """
+    tempconf = []
+
+    log.info('Starting Temperature config')
+    new_block = "${voffset 12}${color1}${goto 106}${freq_g cpu0} Ghz${alignr 330}${hwmon " + temperature['number_hwmon'] + " temp " + temperature['number_temp'] + "} °C"
+    tempconf.append(new_block)
+    log.info("temperature = {}".format(tempconf))
+
+    log.info('Writing TEMPORARY conky config in config file')
+    filedata = read_conf(dest_conky)
+    filedata = filedata.replace('#{{ TEMPERATURE }}', ''.join(tempconf))
+    write_conf(filedata, dest_conky)
+
+
+def write_tempconf_lua(temperature):
+    """ Prepare lua config for NETWORK
+    """
+    tempconf_lua = []
+    data = {
+        'arg': "{} temp {}". format(temperature['number_hwmon'], temperature['number_temp'])
+        }
+
+    new_block = """\n    {{
+        name='hwmon',
+        arg='{arg}',
+        max=110,
+        bg_colour=0x3b3b3b,
+        bg_alpha=0.8,
+        fg_colour=0x34cdff,
+        fg_alpha=0.8,
+        x=200, y=120,
+        radius=97,
+        thickness=4,
+        start_angle=0,
+        end_angle=240
+    }},""".format(**data)
+
+    tempconf_lua.append(new_block)
+    # set temperature watch accordingly
+    tempconf_watch = 'temperature=tonumber(conky_parse("${hwmon ' + data['arg'] + '}"))'
+
+    log.info('Writing TEMPERATURE LUA config in config file')
+    filedata = read_conf(dest_lua)
+    filedata = filedata.replace('--{{ TEMPERATURE }}', ''.join(tempconf_lua))
+    write_conf(filedata, dest_lua)
+
+    log.info('Writing TEMPERATURE_WATCH lua config in config file')
+    filedata = read_conf(dest_lua)
+    filedata = filedata.replace('--{{ TEMPERATURE_WATCH }}', ''.join(tempconf_watch))
+    write_conf(filedata, dest_lua)
+
+
 def write_memconf_conky():
-    """ Prepare conky config for IO
+    """ Prepare conky config for Memory
     """
     memconf = []
 
@@ -592,6 +672,7 @@ def write_netconf_lua(interface):
     filedata = read_conf(dest_lua)
     filedata = filedata.replace('--{{ NETWORK }}', ''.join(netconf_lua))
     write_conf(filedata, dest_lua)
+
 
 def write_netconf_conky(interface):
     """ Prepare conky config for network interface
@@ -706,17 +787,20 @@ if __name__ == "__main__":
     write_conf_blank(src_conky, dest_conky)
 
     # get system info
+    temperature = cpu_temperature()
     cpunb = cpu_number()
     meminfo = meminfo()
     interface = route_interface()
     disks = disk_select()
 
     # wrtie LUA file
+    write_tempconf_lua(temperature)
     write_cpuconf_lua(cpunb)
     write_fsconf_lua(disks,cpunb)
     write_netconf_lua(interface)
 
     # wrtie conky file
+    write_tempconf_conky(temperature)
     write_cpuconf_conky(cpunb)
     write_diskioconf_conky()
     write_memconf_conky()
